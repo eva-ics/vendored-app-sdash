@@ -295,22 +295,6 @@ td {
   margin: 0;
 }
 
-.header {
-  padding: 10px 10px;
-}
-
-.header-info {
-  display: inline-block;
-  position: absolute;
-  top: 15px;
-  padding-left: 10px;
-  @include media(tablet) {
-    position: relative;
-    top: 0px;
-    padding-left: 30px;
-  }
-}
-
 .admin-required-container {
   text-align: center;
 }
