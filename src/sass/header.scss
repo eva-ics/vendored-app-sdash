@@ -26,8 +26,10 @@ nav#header {
   > ul > li {
     display: inline;
 
-    :hover {
-      background-color: $menu-hover-color;
+    @media (hover: hover) and (pointer: fine) {
+      :hover {
+        background-color: $menu-hover-color;
+      }
     }
   }
 }
