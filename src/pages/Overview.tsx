@@ -102,6 +102,11 @@ const DashboardOverview = () => {
     };
   });
 
+  const num_cpus = eva?.server_info?.num_cpus || 1;
+  const cpu_gauge_max = num_cpus;
+  const cpu_gauge_warn = cpu_gauge_max * 0.75;
+  const cpu_gauge_crit = cpu_gauge_max * 0.9;
+
   return (
     <div>
       <div className="dashboard-main-wrapper dashboard-main-wrapper-small">
@@ -135,9 +140,9 @@ const DashboardOverview = () => {
                 diameter={200}
                 numTicks={5}
                 minValue={0}
-                maxValue={10}
-                warnValue={5}
-                critValue={8}
+                maxValue={cpu_gauge_max}
+                warnValue={cpu_gauge_warn}
+                critValue={cpu_gauge_crit}
                 label={"CPU LA1:"}
                 showValue
                 state={{ value: core_sys_info?.data?.la1 }}
@@ -147,9 +152,9 @@ const DashboardOverview = () => {
                 diameter={200}
                 numTicks={5}
                 minValue={0}
-                maxValue={10}
-                warnValue={5}
-                critValue={8}
+                maxValue={cpu_gauge_max}
+                warnValue={cpu_gauge_warn}
+                critValue={cpu_gauge_crit}
                 label={"CPU LA5:"}
                 showValue
                 state={{ value: core_sys_info?.data?.la5 }}
