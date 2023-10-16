@@ -177,6 +177,8 @@ th {
   top: 0;
   z-index: 2;
   text-align: left;
+  white-space: nowrap;
+
   @include media(tablet) {
     font-size: 14px;
   }
