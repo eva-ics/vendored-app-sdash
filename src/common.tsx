@@ -69,3 +69,9 @@ export const formatUptime = (uptimeInSeconds?: number) => {
     return formattedUptime.trim();
   }
 };
+
+export const formatNumber = (n?: number) => {
+  if (n !== undefined) {
+    return n.toLocaleString("en").replaceAll(",", " ");
+  }
+};

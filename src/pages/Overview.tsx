@@ -9,6 +9,7 @@ import { Eva } from "@eva-ics/webengine";
 import {
   timeFromTimestamp,
   formatUptime,
+  formatNumber,
   onSuccess,
   onEvaError
 } from "../common.tsx";
@@ -65,10 +66,7 @@ const DashboardOverview = () => {
     ["Binary architecture", server_info?.data?.system_arch],
     ["Server time", timeFromTimestamp(server_info?.data?.time)],
     ["Uptime", formatUptime(server_info?.data?.uptime)],
-    [
-      "Items",
-      node_item_summary?.data?.items?.toLocaleString("en").replaceAll(",", " ")
-    ],
+    ["Items", formatNumber(node_item_summary?.data?.items)],
     ["Version/build", `${eva?.server_info?.version} ${eva?.server_info?.build}`]
   ];
 

@@ -1,7 +1,7 @@
 import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { useEffect, useRef } from "react";
 import { Eva } from "@eva-ics/webengine";
-import { formatUptime } from "../common.tsx";
+import { formatUptime, formatNumber } from "../common.tsx";
 import { DashTable, TableData } from "../components/DashTable.tsx";
 
 const DashboardCloud = () => {
@@ -44,15 +44,20 @@ const DashboardCloud = () => {
     let trusted;
     if (node.svc) {
       if (xtra) {
-      managed = xtra.managed ? "YES" : "NO";
-      trusted = xtra.trusted ? "YES" : "NO";
-    }} else {
+        managed = xtra.managed ? "YES" : "NO";
+        trusted = xtra.trusted ? "YES" : "NO";
+      }
+    } else {
     }
+
+    const item_count =
+      node_item_summary?.data?.sources?.[node.svc ? node.name : ".local"];
     return {
       data: [
         { value: node.name },
         {
-          value: node.online ? "YES" : "NO", sort_value: node.online,
+          value: node.online ? "YES" : "NO",
+          sort_value: node.online,
           className: node.online ? "data-active" : "data-inactive"
         },
         { value: managed, className: xtra?.managed ? "" : "data-inactive" },
@@ -62,8 +67,8 @@ const DashboardCloud = () => {
           sort_value: xtra?.link_uptime
         },
         {
-          value:
-            node_item_summary?.data?.sources?.[node.svc ? node.name : ".local"]
+          value: formatNumber(item_count),
+          sort_value: item_count
         },
         { value: node.svc },
         { value: node.info?.version },
