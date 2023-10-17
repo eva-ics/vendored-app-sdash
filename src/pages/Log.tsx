@@ -1,9 +1,15 @@
 import { useEvaAPICall } from "@eva-ics/webengine-react";
 import { useState } from "react";
 import { DashTable, TableFilter, TableData } from "../components/DashTable.tsx";
+import { formatTime } from "../common.tsx";
 
-const log_levels = ["trace", "debug", "info", "warn", "error"];
+const log_levels = ["debug", "info", "warn", "error"];
 const log_limits = [25, 50, 75, 100, 125, 150, 175, 200];
+
+enum TimeKind {
+  Server = "node",
+  Local = "local"
+}
 
 const DashboardLog = () => {
   const [params, setParams] = useState({
@@ -27,9 +33,11 @@ const DashboardLog = () => {
     setParams(np);
   };
 
+  const [time_kind, setTimeKind] = useState(TimeKind.Local);
+
   const filter: TableFilter = [
     [
-      "Level",
+      "Lvl",
       <select
         value={params.level}
         onChange={(e) => setLogParams({ level: e.target.value })}
@@ -40,7 +48,7 @@ const DashboardLog = () => {
       </select>
     ],
     [
-      "Limit",
+      "Lim",
       <select
         value={params.limit}
         onChange={(e) => setLogParams({ limit: parseInt(e.target.value) })}
@@ -51,17 +59,28 @@ const DashboardLog = () => {
       </select>
     ],
     [
-      "Module",
+      "Mod",
       <input
-        size={10}
+        size={6}
         value={params.module || ""}
         onChange={(e) => setLogParams({ module: e.target.value || null })}
       />
     ],
     [
-      "Message",
+      "Time",
+      <select
+        value={time_kind}
+        onChange={(e) => setTimeKind(e.target.value as TimeKind)}
+      >
+        <option>{TimeKind.Local}</option>
+        <option>{TimeKind.Server}</option>
+      </select>
+    ],
+
+    [
+      "Msg",
       <input
-        size={20}
+        size={15}
         value={params.rx || ""}
         onChange={(e) => setLogParams({ rx: e.target.value || null })}
       />
@@ -69,9 +88,18 @@ const DashboardLog = () => {
   ];
 
   const data: TableData = records?.data?.toReversed().map((record: any) => {
+    let time;
+    switch (time_kind) {
+      case TimeKind.Server:
+        time = { value: record.dt, sort_value: record.t };
+        break;
+      case TimeKind.Local:
+        time = { value: formatTime(record.t, true), sort_value: record.t };
+        break;
+    }
     return {
       data: [
-        { value: record.dt, sort_value: record.t },
+        time,
         { value: record.mod },
         { value: record.lvl, sort_value: record.l },
         { value: record.msg, className: "log-record-message" }

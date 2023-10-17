@@ -17,20 +17,27 @@ function f(n: number) {
   return n < 10 ? "0" + n : n;
 }
 
-export const dateRFC3339 = (d: Date) => {
-  return (
+export const formatTime = (t: number, millis?: boolean) => {
+  return dateRFC3339(new Date(t * 1000), millis);
+};
+
+export const dateRFC3339 = (d: Date, millis?: boolean) => {
+  let result =
     d.getFullYear() +
     "-" +
     f(d.getMonth() + 1) +
     "-" +
     f(d.getDate()) +
-    " " +
+    "T" +
     f(d.getHours()) +
     ":" +
     f(d.getMinutes()) +
     ":" +
-    f(d.getSeconds())
-  );
+    f(d.getSeconds());
+  if (millis) {
+    result += "." + f(d.getMilliseconds());
+  }
+  return result;
 };
 
 export const timeFromTimestamp = (ts?: number) => {
