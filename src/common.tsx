@@ -19,17 +19,17 @@ function f(n: number) {
 
 export const dateRFC3339 = (d: Date) => {
   return (
-    d.getUTCFullYear() +
+    d.getFullYear() +
     "-" +
-    f(d.getUTCMonth() + 1) +
+    f(d.getMonth() + 1) +
     "-" +
-    f(d.getUTCDate()) +
+    f(d.getDate()) +
     " " +
-    f(d.getUTCHours()) +
+    f(d.getHours()) +
     ":" +
-    f(d.getUTCMinutes()) +
+    f(d.getMinutes()) +
     ":" +
-    f(d.getUTCSeconds())
+    f(d.getSeconds())
   );
 };
 
