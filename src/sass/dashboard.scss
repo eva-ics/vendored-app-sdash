@@ -89,9 +89,6 @@
 .content-sessions {
   height: 300px;
   overflow: auto;
-  @include media(tablet) {
-    padding: 20px;
-  }
 }
 
 .content-longtable {

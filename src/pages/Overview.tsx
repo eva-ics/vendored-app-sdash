@@ -130,7 +130,7 @@ const DashboardOverview = () => {
               cols={["user", "source", "mode", "expires"]}
               data={session_data}
               title="HMI sessions"
-              className="session-info"
+              className="content-sessions"
             />
           </div>
           <div className="dashboard-main-wrapper-content__side-right">
