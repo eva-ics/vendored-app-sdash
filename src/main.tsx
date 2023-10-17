@@ -18,6 +18,7 @@ const login_props: LoginProps = {
 };
 
 eva.load_config().then((_config: any) => {
+  eva.state_updates = false;
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <HMIApp Dashboard={SDash} login_props={login_props} />
