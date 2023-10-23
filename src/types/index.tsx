@@ -20,9 +20,16 @@ export interface HeaderProps {
   nav: Array<NavElement>
 }
 
-export interface NavElement {
-  value: any;
+type SubmenuItem = {
+  value: string;
   to: string;
-}
+};
+
+
+type NavElement = {
+  value: string;
+  to: string;
+  submenus?: SubmenuItem[];
+};
 
 export const DEFAULT_TITLE = "Node system dashboard";

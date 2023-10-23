@@ -38,11 +38,23 @@ const Layout = ({ logout, children }: LayoutProps) => {
   }
 
   const nav = [
-    { value: "Overview", to: "?" },
-    { value: "Services", to: "?d=services" },
-    { value: "Cloud", to: "?d=cloud" },
-    { value: "Log", to: "?d=log" }
+    { value: "Overview", to: "?" ,submenus: [
+        { value: "Overview 1", to: "?d=services&sub=1" },
+        { value: "Overview 2", to: "?d=services&sub=2" },
+        { value: "Overview 3", to: "?d=services&sub=1" },
+        { value: "Overview 4", to: "?d=services&sub=2" },
+      ]},
+    { value: "Services", to: "?d=services", submenus: [
+        { value: "Services 1", to: "?d=services&sub=1" },
+        { value: "Services 2", to: "?d=services&sub=2" },
+      ] },
+    { value: "Cloud", to: "?d=cloud", submenus: [
+        { value: "Submenu A", to: "?d=cloud&sub=A" },
+        { value: "Submenu B", to: "?d=cloud&sub=B" },
+      ] },
+    { value: "Log", to: "?d=log" },
   ];
+
 
   return (
     <div className="root-container">

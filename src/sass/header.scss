@@ -66,3 +66,16 @@ nav#header {
     color: #fff;
   }
 }
+
+.submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: flex;
+}
+
+
+
+.submenu-item {
+  padding: 10px 20px;
+}
