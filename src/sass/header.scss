@@ -1,5 +1,5 @@
 .header {
-  padding: 11px 0;
+  padding: 35px 0;
 }
 
 .header-info {
@@ -28,7 +28,7 @@ nav#header {
 
     @media (hover: hover) and (pointer: fine) {
       :hover {
-        background-color: $menu-hover-color;
+        //background-color: $menu-hover-color;
       }
     }
   }
@@ -43,6 +43,7 @@ nav#header {
 .nav-link-container-current {
   position: relative;
   color: #fff;
+  background-color: $nav-menu-bg-color;
 
   &:after {
     position: absolute;
@@ -50,7 +51,7 @@ nav#header {
     bottom: -1px;
     left: 0;
     width: 100%;
-    border-bottom: 1px solid $main-blue-color;
+    border-bottom: 1px solid $secondary-text-color;
   }
 }
 
@@ -68,14 +69,24 @@ nav#header {
 }
 
 .submenu {
+  width: 100%;
   position: absolute;
-  top: 100%;
+  top: 40px;
   left: 0;
   display: flex;
+  background-color: $nav-menu-bg-color;
 }
-
-
-
 .submenu-item {
   padding: 10px 20px;
+
+  &.submenu-item-current {
+    &:after {
+      position: absolute;
+      content: "";
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      border-bottom: 1px solid $secondary-text-color;
+    }
+  }
 }
