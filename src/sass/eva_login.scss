@@ -39,7 +39,6 @@ button.eva.login {
   margin-top: 20px;
   width: 100%;
   padding: 13px 0;
-  font-family: Inter, sans-serif;
   font-weight: bold;
   font-size: 18px;
   color: var(--main-text-color);
@@ -111,7 +110,6 @@ div.eva.login.logo {
 
 //The CSS rule targets the div element with the class "eva.login.header".
 div.eva.login.header {
-  font-family: "Chakra Petch", sans-serif;
   font-weight: 600;
   font-size: 18px;
   line-height: normal;
@@ -122,7 +120,6 @@ div.eva.login.header {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Chakra Petch",sans-serif;
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -158,7 +155,6 @@ div.eva.login.row.text {
 
 //The CSS rule targets the label element inside element with the class "eva.login.row.text".
 div.eva.login.row.text > label {
-  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -183,7 +179,6 @@ div.eva.login.row.remember {
   gap: 12px;
   align-items: center;
   justify-content: center;
-  font-family: "Inter", sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -191,7 +186,6 @@ div.eva.login.row.remember {
   color: var(--btns-text-color);
 
   &>label{
-    font-family: "Inter", sans-serif;
     font-size: 14px;
     font-style: normal;
     font-weight: 400;
