@@ -8,13 +8,13 @@ import { DEFAULT_TITLE } from "./types/index.tsx";
 import React from "react";
 
 const eva = new Eva();
-eva.register_legacy_globals();
 set_engine(eva);
 document.title = DEFAULT_TITLE;
 
 const login_props: LoginProps = {
   cache_login: true,
-  cache_auth: true
+  cache_auth: true,
+  register_globals: true
 };
 
 eva.load_config().then((_config: any) => {
