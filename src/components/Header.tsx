@@ -11,7 +11,14 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
       <button className="menu-icon-btn" onClick={toggleMenu}>
         <GiHamburgerMenu size={25} />
       </button>
-      <div className="header-info">EVA ICS SDash. Node: {eva.system_name()}</div>
+      <div className="header-info">
+        <div className="dash-info">
+          <img src="icon.svg" className="dash-logo" />
+          <div className="dash-title">
+            EVA ICS SDash. Node: {eva.system_name()}
+          </div>
+        </div>
+      </div>
       <nav id="header">
         <ul>
           {nav.map((v, idx) => {
