@@ -58,20 +58,27 @@ const DashboardCloud = () => {
         {
           value: node.online ? "YES" : "NO",
           sort_value: node.online,
-          className: node.online ? "data-active" : "data-inactive"
+          className:
+            (node.online ? "data-active" : "data-inactive") + " col-fit"
         },
-        { value: managed, className: xtra?.managed ? "" : "data-inactive" },
-        { value: trusted, className: xtra?.trusted ? "" : "data-inactive" },
+        {
+          value: managed,
+          className: (xtra?.managed ? "" : "data-inactive") + " col-fit"
+        },
+        {
+          value: trusted,
+          className: (xtra?.trusted ? "" : "data-inactive") + " col-fit"
+        },
         {
           value: formatUptime(xtra?.link_uptime),
-          sort_value: xtra?.link_uptime
+          sort_value: xtra?.link_uptime, className: "col-uptime"
         },
         {
           value: formatNumber(item_count),
           sort_value: item_count
         },
-        { value: node.svc },
-        { value: node.info?.version },
+        { value: node.svc, className: "col-fit" },
+        { value: node.info?.version, className: "col-fit" },
         { value: node.info?.build }
       ]
     };

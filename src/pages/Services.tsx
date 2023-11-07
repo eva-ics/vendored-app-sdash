@@ -51,14 +51,16 @@ const DashboardServices = () => {
         { value: svc.id },
         {
           value: svc.status,
-          className: svc.status == "online" ? "data-active" : "data-inactive"
+          className:
+            "col-fit " +
+            (svc.status == "online" ? "data-active" : "data-inactive")
         },
-        { value: svc.pid },
+        { value: svc.pid, className: "col-fit" },
         {
           value: svc.pid ? (
             <button onClick={() => restartService(svc.id)}>restart</button>
           ) : null,
-          className: "table-action"
+          className: "col-fit"
         },
         { value: svc.launcher }
       ]

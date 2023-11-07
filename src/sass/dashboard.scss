@@ -336,3 +336,18 @@ tr.log-record-error {
   white-space: normal;
   line-height: 18px;
 }
+
+td.col-fit {
+  width: 1%;
+  white-space: nowrap;
+}
+
+td.col-uptime {
+  width: 150px;
+  white-space: nowrap;
+}
+
+td.col-time {
+  width: 230px;
+  white-space: nowrap;
+}
