@@ -55,23 +55,32 @@ export const formatUptime = (uptimeInSeconds?: number) => {
     const secondsInHour = 3600;
     const secondsInDay = 86400;
     const days = Math.floor(uptimeInSeconds / secondsInDay);
-    const hours = Math.floor((uptimeInSeconds % secondsInDay) / secondsInHour);
-    const minutes = Math.floor(
+    let hours = Math.floor((uptimeInSeconds % secondsInDay) / secondsInHour);
+    let minutes = Math.floor(
       (uptimeInSeconds % secondsInHour) / secondsInMinute
     );
-    const seconds = uptimeInSeconds % secondsInMinute;
+    let seconds = uptimeInSeconds % secondsInMinute;
     let formattedUptime = "";
     if (days > 0) {
       formattedUptime += days + "d ";
     }
     if (hours > 0) {
-      formattedUptime += hours + "h ";
+      if (hours == 24) {
+        hours = 0;
+      }
+      formattedUptime += ("0" + hours).slice(-2) + "h ";
     }
     if (minutes > 0) {
-      formattedUptime += minutes + "m ";
+      if (minutes == 60) {
+        minutes = 0;
+      }
+      formattedUptime += ("0" + minutes).slice(-2) + "m ";
     }
     if (seconds > 0) {
-      formattedUptime += seconds.toFixed(0) + "s";
+      if (seconds == 60) {
+        seconds = 0;
+      }
+      formattedUptime += ("0" + seconds.toFixed(0)).slice(-2) + "s";
     }
     return formattedUptime.trim();
   }
