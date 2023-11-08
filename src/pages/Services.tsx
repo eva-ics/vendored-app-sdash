@@ -3,6 +3,10 @@ import { Eva } from "@eva-ics/webengine";
 import { useState, useMemo } from "react";
 import { onSuccess, onEvaError } from "../common.tsx";
 import { DashTable, TableData, TableFilter } from "../components/DashTable.tsx";
+import {
+  ComponentParameterPack,
+  useQueryParams
+} from "../components/useQueryParams.tsx";
 
 const DashboardServices = () => {
   const eva = useMemo(() => {
@@ -13,8 +17,31 @@ const DashboardServices = () => {
     filter: null
   });
 
+  const setSvcParams = (p: object) => {
+    let np: any = { ...params };
+    Object.keys(p).forEach((k) => {
+      np[k] = (p as any)[k];
+    });
+    setParams(np);
+  };
+
+  const loaded = useQueryParams(
+    "?d=services",
+    [
+      {
+        name: "filter",
+        value: params.filter || "",
+        setter: (s: string) => {
+          setSvcParams({ filter: s || null });
+        },
+        pack: ComponentParameterPack.URI
+      }
+    ],
+    [params.filter]
+  );
+
   const svc_list = useEvaAPICall({
-    method: `bus::eva.core::svc.list`,
+    method: loaded ? `bus::eva.core::svc.list` : undefined,
     params: params,
     update: 1
   });
@@ -24,14 +51,6 @@ const DashboardServices = () => {
       .call(`bus::eva.core::svc.restart`, { i: id })
       .then(() => onSuccess())
       .catch((e) => onEvaError(e));
-  };
-
-  const setSvcParams = (p: object) => {
-    let np: any = { ...params };
-    Object.keys(p).forEach((k) => {
-      np[k] = (p as any)[k];
-    });
-    setParams(np);
   };
 
   const filter: TableFilter = [

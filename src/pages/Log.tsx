@@ -2,6 +2,10 @@ import { useEvaAPICall } from "@eva-ics/webengine-react";
 import { useState } from "react";
 import { DashTable, TableFilter, TableData } from "../components/DashTable.tsx";
 import { formatTime } from "../common.tsx";
+import {
+  ComponentParameterPack,
+  useQueryParams
+} from "../components/useQueryParams.tsx";
 
 const log_levels = ["debug", "info", "warn", "error"];
 const log_limits = [25, 50, 75, 100, 125, 150, 175, 200];
@@ -19,8 +23,28 @@ const DashboardLog = () => {
     rx: null
   });
 
+  const [time_kind, setTimeKind] = useState(TimeKind.Local);
+
+  const loaded = useQueryParams(
+    "?d=log",
+    [
+      {
+        name: "params",
+        value: params,
+        setter: setParams,
+        pack: ComponentParameterPack.Json
+      },
+      {
+        name: "tk",
+        value: time_kind,
+        setter: setTimeKind
+      }
+    ],
+    [params, time_kind]
+  );
+
   const records = useEvaAPICall({
-    method: `bus::eva.core::log.get`,
+    method: loaded ? `bus::eva.core::log.get` : undefined,
     params: params,
     update: 1
   });
@@ -32,8 +56,6 @@ const DashboardLog = () => {
     });
     setParams(np);
   };
-
-  const [time_kind, setTimeKind] = useState(TimeKind.Local);
 
   const filter: TableFilter = [
     [
