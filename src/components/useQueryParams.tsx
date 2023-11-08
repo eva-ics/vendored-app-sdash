@@ -1,9 +1,26 @@
-import { useEffect, useState, Dispatch } from "react";
+import { useEffect, useMemo, useState, Dispatch } from "react";
 
-export enum ComponentParameterPack {
-  Json = "json",
-  URI = "URI"
-}
+export const encoderBoolean = (v: boolean): string => {
+  return v === true ? "Y" : "";
+};
+
+export const decoderBoolean = (v: string): boolean => {
+  return v === "Y";
+};
+
+export const encoderFloat = (v: number): string => {
+  return v === null || v === undefined ? "" : v.toString();
+};
+
+export const decoderFloat = (v: string): number | null => {
+  return v === "" ? null : parseFloat(v);
+};
+
+export const encoderInt = encoderFloat;
+
+export const decoderInt = (v: string): number | null => {
+  return v === "" ? null : parseInt(v);
+};
 
 export interface ComponentData<T> {
   name: string;
@@ -11,16 +28,15 @@ export interface ComponentData<T> {
   encoder?: (value: T) => any;
   decoder?: (value: any) => T;
   setter: Dispatch<T>;
-  pack?: ComponentParameterPack;
+  pack_json?: boolean;
 }
 
 export const useQueryParams = (
-  base_uri: string,
   components: Array<ComponentData<any>>,
   dependencies?: any
 ) => {
   const loaded = useLoadParams(components);
-  useStoreParams(loaded, base_uri, components, dependencies);
+  useStoreParams(loaded, components, dependencies);
   return loaded;
 };
 
@@ -31,10 +47,12 @@ const useLoadParams = (components: Array<ComponentData<any>>) => {
     for (const component of components) {
       let data = p.get(component.name);
       if (data !== undefined && data !== null) {
-        if (component.pack === ComponentParameterPack.Json) {
+        if (component.pack_json) {
           try {
             data = JSON.parse(data);
-          } catch {}
+          } catch (e) {
+            console.warn(`unable to decode qs param ${component.name}: ${e}`);
+          }
         }
         component.setter(component.decoder ? component.decoder(data) : data);
       }
@@ -46,29 +64,26 @@ const useLoadParams = (components: Array<ComponentData<any>>) => {
 
 const useStoreParams = (
   loaded: boolean,
-  base_uri: string,
   components: Array<ComponentData<any>>,
   dependencies?: any
 ) => {
+  const deps = useMemo(() => {
+    return [dependencies, loaded];
+  }, dependencies);
   useEffect(() => {
     if (loaded) {
-      let qs = base_uri;
+      const p = new URLSearchParams(document.location.search);
       for (const component of components) {
         let data = component.encoder
           ? component.encoder(component.value)
           : component.value;
-        switch (component.pack) {
-          case ComponentParameterPack.Json:
-            data = encodeURIComponent(JSON.stringify(data));
-            break;
-          case ComponentParameterPack.URI:
-            data = encodeURIComponent(data);
-            break;
+        if (component.pack_json) {
+          data = JSON.stringify(data);
         }
-        qs += `&${component.name}=${data}`;
+        p.set(component.name, data);
       }
-      const url = `${window.location.protocol}//${window.location.host}${window.location.pathname}${qs}`;
+      const url = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${p}`;
       window.history.pushState({ path: url }, "", url);
     }
-  }, [dependencies, loaded]);
+  }, deps);
 };

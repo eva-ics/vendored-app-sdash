@@ -125,10 +125,12 @@ const DashboardOverview = () => {
               </div>
             </div>
             <DashTable
+              id="hmi_sess"
               cols={["user", "source", "mode", "expires"]}
               data={session_data}
               title="HMI sessions"
               className="content-sessions"
+              rememberQs={true}
             />
           </div>
           <div className="dashboard-main-wrapper-content__side-right">

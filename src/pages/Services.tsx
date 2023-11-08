@@ -3,10 +3,7 @@ import { Eva } from "@eva-ics/webengine";
 import { useState, useMemo } from "react";
 import { onSuccess, onEvaError } from "../common.tsx";
 import { DashTable, TableData, TableFilter } from "../components/DashTable.tsx";
-import {
-  ComponentParameterPack,
-  useQueryParams
-} from "../components/useQueryParams.tsx";
+import { useQueryParams } from "../components/useQueryParams.tsx";
 
 const DashboardServices = () => {
   const eva = useMemo(() => {
@@ -26,15 +23,13 @@ const DashboardServices = () => {
   };
 
   const loaded = useQueryParams(
-    "?d=services",
     [
       {
         name: "filter",
         value: params.filter || "",
         setter: (s: string) => {
           setSvcParams({ filter: s || null });
-        },
-        pack: ComponentParameterPack.URI
+        }
       }
     ],
     [params.filter]
@@ -92,11 +87,13 @@ const DashboardServices = () => {
         <div className="dashboard-main-wrapper-content">
           <div className="dashboard-main-wrapper-content__side-left">
             <DashTable
+              id="svcs"
               title="Services"
               filter={filter}
               cols={["id", "status", "pid", "", "launcher"]}
               data={data}
               className="content-longtable"
+              rememberQs={true}
             />
           </div>
         </div>

@@ -2,10 +2,7 @@ import { useEvaAPICall } from "@eva-ics/webengine-react";
 import { useState } from "react";
 import { DashTable, TableFilter, TableData } from "../components/DashTable.tsx";
 import { formatTime } from "../common.tsx";
-import {
-  ComponentParameterPack,
-  useQueryParams
-} from "../components/useQueryParams.tsx";
+import { useQueryParams } from "../components/useQueryParams.tsx";
 
 const log_levels = ["debug", "info", "warn", "error"];
 const log_limits = [25, 50, 75, 100, 125, 150, 175, 200];
@@ -26,13 +23,12 @@ const DashboardLog = () => {
   const [time_kind, setTimeKind] = useState(TimeKind.Local);
 
   const loaded = useQueryParams(
-    "?d=log",
     [
       {
         name: "params",
         value: params,
         setter: setParams,
-        pack: ComponentParameterPack.Json
+        pack_json: true
       },
       {
         name: "tk",
@@ -136,11 +132,13 @@ const DashboardLog = () => {
         <div className="dashboard-main-wrapper-content">
           <div className="dashboard-main-wrapper-content__side-left">
             <DashTable
+              id="log"
               title="Node log"
               cols={["time", "module", "level", "message"]}
               filter={filter}
               data={data}
               className="content-longtable"
+              rememberQs={true}
             />
           </div>
         </div>

@@ -71,7 +71,8 @@ const DashboardCloud = () => {
         },
         {
           value: formatUptime(xtra?.link_uptime),
-          sort_value: xtra?.link_uptime, className: "col-uptime"
+          sort_value: xtra?.link_uptime,
+          className: "col-uptime"
         },
         {
           value: formatNumber(item_count),
@@ -90,6 +91,7 @@ const DashboardCloud = () => {
         <div className="dashboard-main-wrapper-content">
           <div className="dashboard-main-wrapper-content__side-left">
             <DashTable
+              id="cloud"
               title="Cloud status"
               cols={[
                 "node",
@@ -104,6 +106,7 @@ const DashboardCloud = () => {
               ]}
               data={data}
               className="content-longtable"
+              rememberQs={true}
             />
           </div>
         </div>

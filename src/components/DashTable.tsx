@@ -1,4 +1,18 @@
 import { useState, useEffect } from "react";
+import {
+  useQueryParams,
+  encoderInt,
+  decoderInt,
+  encoderBoolean,
+  decoderBoolean
+} from "../components/useQueryParams.tsx";
+
+export const defaultTableColSorting = (): TableColSorting => {
+  return {
+    col: null,
+    asc: true
+  };
+};
 
 export type TableFilter = Array<[string, JSX.Element]>;
 export type TableData = Array<TableRow>;
@@ -9,31 +23,80 @@ export interface TableRow {
 export interface ColData {
   value: any;
   sort_value: any;
+  Draw?: () => JSX.Element;
   className?: string;
+}
+
+export interface TableColSorting {
+  col: null | number;
+  asc: boolean;
 }
 
 export const DashTable = ({
   id,
   title,
+  header,
   filter,
   cols,
   data,
-  className
+  className,
+  setColSorting,
+  default_sort_col,
+  default_sort_asc,
+  rememberQs
 }: {
   id?: any;
   title: string;
+  header?: any;
   filter?: TableFilter;
   cols: Array<string>;
   data?: TableData;
   className?: string;
+  setColSorting?: (sorting: TableColSorting) => void;
+  default_sort_col?: null | number;
+  default_sort_asc?: boolean;
+  rememberQs?: boolean;
 }) => {
-  const [sort_col, setSortCol] = useState<null | number>(null);
-  const [sort_asc, setSortAsc] = useState(true);
+  const [sort_col, setSortCol] = useState<null | number>(
+    default_sort_col || null
+  );
+  const [sort_asc, setSortAsc] = useState<boolean>(
+    default_sort_asc === undefined ? true : default_sort_asc
+  );
 
   useEffect(() => {
-    setSortCol(null);
-    setSortAsc(true);
-  }, [id]);
+    setSortCol(default_sort_col || null);
+    setSortAsc(default_sort_asc === undefined ? true : default_sort_asc);
+    if (setColSorting) {
+      setColSorting(defaultTableColSorting());
+    }
+  }, [id, default_sort_col, default_sort_asc]);
+
+  const loaded = useQueryParams(
+    rememberQs
+      ? [
+          {
+            name: "DT_" + (id ? id : title) + "_sc",
+            value: sort_col,
+            setter: setSortCol,
+            encoder: encoderInt,
+            decoder: decoderInt
+          },
+          {
+            name: "DT_" + (id ? id : title) + "_sa",
+            value: sort_asc,
+            setter: setSortAsc,
+            encoder: encoderBoolean,
+            decoder: decoderBoolean
+          }
+        ]
+      : [],
+    [id, sort_col, sort_asc]
+  );
+
+  if (!loaded) {
+    return <></>;
+  }
 
   if (sort_col !== null && data) {
     data.sort((x, y) => {
@@ -63,12 +126,16 @@ export const DashTable = ({
       setSortAsc(true);
       setSortCol(cn);
     }
+    if (setColSorting) {
+      setColSorting({ col: sort_col, asc: sort_asc });
+    }
   };
 
   return (
     <div className="dashboard-main-content-block_table">
       {title ? <div className="heading-h2">{title}</div> : null}
       <div className={`dashboard-main-content-block__content ${className}`}>
+        {header}
         {filter ? (
           <div className="filter-form">
             {filter.map(([n, f], index) => {
@@ -121,7 +188,7 @@ export const DashTable = ({
                       {row.data.map((col, index) => {
                         return (
                           <td key={`c${index}`} className={col?.className}>
-                            {col?.value}
+                            {col.value}
                           </td>
                         );
                       })}
