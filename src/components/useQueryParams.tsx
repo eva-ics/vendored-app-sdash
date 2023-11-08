@@ -8,8 +8,8 @@ export enum ComponentParameterPack {
 export interface ComponentData<T> {
   name: string;
   value: T;
-  encoder?: (value: T) => string;
-  decoder?: (value: T) => string;
+  encoder?: (value: T) => any;
+  decoder?: (value: any) => T;
   setter: Dispatch<T>;
   pack?: ComponentParameterPack;
 }
