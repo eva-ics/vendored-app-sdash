@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, Dispatch } from "react";
+import { useEffect, useState, Dispatch } from "react";
 
 export const encoderBoolean = (v: boolean): string => {
   return v === true ? "Y" : "";
@@ -67,9 +67,6 @@ const useStoreParams = (
   components: Array<ComponentData<any>>,
   dependencies?: any
 ) => {
-  const deps = useMemo(() => {
-    return [dependencies, loaded];
-  }, dependencies);
   useEffect(() => {
     if (loaded) {
       const p = new URLSearchParams(document.location.search);
@@ -85,5 +82,5 @@ const useStoreParams = (
       const url = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${p}`;
       window.history.pushState({ path: url }, "", url);
     }
-  }, deps);
+  }, dependencies);
 };
