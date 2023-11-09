@@ -2,8 +2,12 @@ import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { Eva } from "@eva-ics/webengine";
 import { useState, useMemo } from "react";
 import { onSuccess, onEvaError } from "../common.tsx";
-import { DashTable, TableData, TableFilter } from "../components/DashTable.tsx";
-import { useQueryParams } from "../components/useQueryParams.tsx";
+import {
+  DashTable,
+  DashTableData,
+  DashTableFilter,
+  useQueryParams
+} from "bmat";
 
 const DashboardServices = () => {
   const eva = useMemo(() => {
@@ -48,7 +52,7 @@ const DashboardServices = () => {
       .catch((e) => onEvaError(e));
   };
 
-  const filter: TableFilter = [
+  const filter: DashTableFilter = [
     [
       "Filter",
       <input
@@ -59,7 +63,7 @@ const DashboardServices = () => {
     ]
   ];
 
-  const data: TableData = svc_list?.data?.map((svc: any) => {
+  const data: DashTableData = svc_list?.data?.map((svc: any) => {
     return {
       data: [
         { value: svc.id },

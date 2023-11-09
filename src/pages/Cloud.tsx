@@ -1,8 +1,7 @@
 import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { useEffect, useRef } from "react";
 import { Eva } from "@eva-ics/webengine";
-import { formatUptime, formatNumber } from "../common.tsx";
-import { DashTable, TableData } from "../components/DashTable.tsx";
+import { DashTable, DashTableData, formatNumber, formatUptime } from "bmat";
 
 const DashboardCloud = () => {
   const eva = get_engine() as Eva;
@@ -37,7 +36,7 @@ const DashboardCloud = () => {
     update: 5
   });
 
-  const data: TableData = node_list?.data?.map((node: any) => {
+  const data: DashTableData = node_list?.data?.map((node: any) => {
     const xtra = node_info_xtra.current.get(node.name);
 
     let managed;
@@ -75,7 +74,7 @@ const DashboardCloud = () => {
           className: "col-uptime"
         },
         {
-          value: formatNumber(item_count),
+          value: formatNumber(item_count, "_"),
           sort_value: item_count
         },
         { value: node.svc, className: "col-fit" },

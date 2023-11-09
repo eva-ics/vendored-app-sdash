@@ -6,14 +6,14 @@ import {
   useEvaAPICall
 } from "@eva-ics/webengine-react";
 import { Eva } from "@eva-ics/webengine";
+import { onSuccess, onEvaError } from "../common.tsx";
 import {
-  timeFromTimestamp,
-  formatUptime,
+  DashTable,
+  DashTableData,
+  timestampRFC3339,
   formatNumber,
-  onSuccess,
-  onEvaError
-} from "../common.tsx";
-import { DashTable, TableData } from "../components/DashTable.tsx";
+  formatUptime
+} from "bmat";
 
 const CoreInfoRow = ({
   n,
@@ -64,9 +64,9 @@ const DashboardOverview = () => {
   const server_info_data = [
     ["Name", eva?.system_name()],
     ["Binary architecture", server_info?.data?.system_arch],
-    ["Server time", timeFromTimestamp(server_info?.data?.time)],
+    ["Server time", timestampRFC3339(server_info?.data?.time)],
     ["Uptime", formatUptime(server_info?.data?.uptime)],
-    ["Items", formatNumber(node_item_summary?.data?.items)],
+    ["Items", formatNumber(node_item_summary?.data?.items, "_")],
     ["Version/build", `${eva?.server_info?.version} ${eva?.server_info?.build}`]
   ];
 
@@ -77,7 +77,7 @@ const DashboardOverview = () => {
       .catch((e) => onEvaError(e));
   };
 
-  const session_data: TableData = hmi_sessions?.data?.map((sess: any) => {
+  const session_data: DashTableData = hmi_sessions?.data?.map((sess: any) => {
     return {
       data: [
         { value: sess.user },
@@ -110,9 +110,9 @@ const DashboardOverview = () => {
       <div className="dashboard-main-wrapper dashboard-main-wrapper-small">
         <div className="dashboard-main-wrapper-content">
           <div className="dashboard-main-wrapper-content__side-left">
-            <div className="dashboard-main-content-block_table">
-              <div className="heading-h2">System info</div>
-              <div className="dashboard-main-content-block__content content-info">
+            <div className="bmat-dashtable-container">
+              <div className="bmat-dashtable-title">System info</div>
+              <div className="bmat-dashtable-container-inner content-info">
                 <table className="info-table">
                   <tbody>
                     {server_info_data.map(([d, v], n) => {

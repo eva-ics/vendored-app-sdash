@@ -1,5 +1,4 @@
-//Colors
-$body-bg-color: #121721;
+$body-bg-color: #111;
 $main-text-color: #eee;
 $secondary-text-color: #d0d0d0;
 $connection-color: #0085ff;
@@ -21,67 +20,14 @@ body {
   margin: 0 auto;
 }
 
-.heading-h2 {
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 0.75;
-  letter-spacing: 0.16px;
-  margin: 0;
-  color: $main-text-color;
-
-  @include media(tablet) {
-    font-size: 18px;
+div.eva.login.logo {
+  &:before{
+    content: url("icon.svg");
   }
 }
 
-.heading-h2 {
-  padding: 10px;
-  @include media(tablet) {
-    padding: 20px 0 0 20px;
-  }
-}
-
-div.filter-empty {
-  @include media(tablet) {
-    padding: 10px;
-  }
-}
-
-div.filter-form {
-  font-size: 12px;
-  padding: 10px;
-
-  @include media(tablet) {
-    padding: 20px;
-    font-size: 14px;
-  }
-
-  > div {
-    margin-bottom: 5px;
-    @include media(tablet) {
-      display: inline-block;
-      margin: 0px;
-    }
-  }
-
-  > div > label > input {
-    font-size: 12px;
-    margin-left: 5px;
-    margin-right: 10px;
-  }
-  > div > label > select {
-    font-size: 12px;
-    margin-left: 5px;
-    margin-right: 10px;
-  }
-
-  @include media(tablet) {
-    > div > label > input {
-      font-size: 14px;
-    }
-    > div > label > select {
-      font-size: 14px;
-    }
+div.eva.login.header {
+  &:before {
+    content: "EVA ICS System Dashboard"
   }
 }

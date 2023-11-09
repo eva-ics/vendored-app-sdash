@@ -1,9 +1,10 @@
-@import "reset";
 @import "mixin";
+@import "../../node_modules/bmat/dist/sass/dashtable.scss";
+@import "../../node_modules/bmat/dist/sass/eva_login.scss";
+@import "reset";
 @import "fonts";
 @import "base";
 @import "header";
 @import "dashboard";
 @import "mui_reset";
 @import "sidemenu";
-@import "eva_login";

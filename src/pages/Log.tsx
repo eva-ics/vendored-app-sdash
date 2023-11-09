@@ -1,8 +1,12 @@
 import { useEvaAPICall } from "@eva-ics/webengine-react";
 import { useState } from "react";
-import { DashTable, TableFilter, TableData } from "../components/DashTable.tsx";
-import { formatTime } from "../common.tsx";
-import { useQueryParams } from "../components/useQueryParams.tsx";
+import {
+  DashTable,
+  DashTableFilter,
+  DashTableData,
+  useQueryParams,
+  timestampRFC3339
+} from "bmat";
 
 const log_levels = ["debug", "info", "warn", "error"];
 const log_limits = [25, 50, 75, 100, 125, 150, 175, 200];
@@ -53,7 +57,7 @@ const DashboardLog = () => {
     setParams(np);
   };
 
-  const filter: TableFilter = [
+  const filter: DashTableFilter = [
     [
       "Lvl",
       <select
@@ -105,14 +109,17 @@ const DashboardLog = () => {
     ]
   ];
 
-  const data: TableData = records?.data?.toReversed().map((record: any) => {
+  const data: DashTableData = records?.data?.toReversed().map((record: any) => {
     let time;
     switch (time_kind) {
       case TimeKind.Server:
         time = { value: record.dt, sort_value: record.t };
         break;
       case TimeKind.Local:
-        time = { value: formatTime(record.t, true), sort_value: record.t };
+        time = {
+          value: timestampRFC3339(record.t, true),
+          sort_value: record.t
+        };
         break;
     }
     return {
