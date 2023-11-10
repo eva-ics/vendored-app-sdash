@@ -7,13 +7,9 @@ import {
 } from "@eva-ics/webengine-react";
 import { Eva } from "@eva-ics/webengine";
 import { onSuccess, onEvaError } from "../common.tsx";
-import {
-  DashTable,
-  DashTableData,
-  timestampRFC3339,
-  formatNumber,
-  formatUptime
-} from "bmat";
+import { DashTable, DashTableData } from "bmat/dashtable";
+import { timestampRFC3339, formatUptime } from "bmat/time";
+import { formatNumber } from "bmat/numbers";
 
 const CoreInfoRow = ({
   n,

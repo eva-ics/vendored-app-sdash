@@ -1,7 +1,9 @@
 import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { useEffect, useRef } from "react";
 import { Eva } from "@eva-ics/webengine";
-import { DashTable, DashTableData, formatNumber, formatUptime } from "bmat";
+import { DashTable, DashTableData } from "bmat/dashtable";
+import { formatUptime } from "bmat/time";
+import { formatNumber } from "bmat/numbers";
 
 const DashboardCloud = () => {
   const eva = get_engine() as Eva;

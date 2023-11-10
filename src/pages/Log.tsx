@@ -1,12 +1,8 @@
 import { useEvaAPICall } from "@eva-ics/webengine-react";
 import { useState } from "react";
-import {
-  DashTable,
-  DashTableFilter,
-  DashTableData,
-  useQueryParams,
-  timestampRFC3339
-} from "bmat";
+import { DashTable, DashTableFilter, DashTableData } from "bmat/dashtable";
+import { useQueryParams } from "bmat/hooks";
+import { timestampRFC3339 } from "bmat/time";
 
 const log_levels = ["debug", "info", "warn", "error"];
 const log_limits = [25, 50, 75, 100, 125, 150, 175, 200];

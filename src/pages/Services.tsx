@@ -2,12 +2,8 @@ import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { Eva } from "@eva-ics/webengine";
 import { useState, useMemo } from "react";
 import { onSuccess, onEvaError } from "../common.tsx";
-import {
-  DashTable,
-  DashTableData,
-  DashTableFilter,
-  useQueryParams
-} from "bmat";
+import { DashTable, DashTableData, DashTableFilter } from "bmat/dashtable";
+import { useQueryParams } from "bmat/hooks";
 
 const DashboardServices = () => {
   const eva = useMemo(() => {
