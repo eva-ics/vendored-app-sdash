@@ -1,4 +1,3 @@
-import ToasterProvider from "./components/ToastsProvider.tsx";
 import Layout from "./pages/Layout.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { FunctionLogout, get_engine } from "@eva-ics/webengine-react";
@@ -20,9 +19,7 @@ const SDash = ({ logout }: { logout: FunctionLogout }) => {
   if (eva.server_info.acl.admin) {
     return (
       <BrowserRouter>
-        <Layout logout={logout}>
-          <ToasterProvider />
-        </Layout>
+        <Layout logout={logout}></Layout>
       </BrowserRouter>
     );
   } else {

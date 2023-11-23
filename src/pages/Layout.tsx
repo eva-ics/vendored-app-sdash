@@ -8,7 +8,7 @@ import DashboardCloud from "../pages/Cloud.tsx";
 import DashboardServices from "../pages/Services.tsx";
 import DashboardLog from "../pages/Log.tsx";
 
-const Layout = ({ logout, children }: LayoutProps) => {
+const Layout = ({ logout }: LayoutProps) => {
   const [isOpenMenu, setIsOpenMenu] = useState(false);
   const [searchParams, _] = useSearchParams();
 
@@ -59,7 +59,6 @@ const Layout = ({ logout, children }: LayoutProps) => {
         logout={logout}
       />
       {content}
-      {children}
     </div>
   );
 };

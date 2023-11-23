@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { FunctionLogout } from "@eva-ics/webengine-react";
 
 export interface SideMenuProps {
@@ -9,7 +8,6 @@ export interface SideMenuProps {
 }
 
 export interface LayoutProps {
-  children: ReactNode;
   logout: FunctionLogout;
 }
 

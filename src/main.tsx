@@ -6,6 +6,7 @@ import { Eva } from "@eva-ics/webengine";
 import { set_engine, LoginProps, HMIApp } from "@eva-ics/webengine-react";
 import { DEFAULT_TITLE } from "./types/index.tsx";
 import React from "react";
+import ToasterProvider from "./components/ToastsProvider.tsx";
 
 const eva = new Eva();
 set_engine(eva);
@@ -21,6 +22,7 @@ eva.load_config().then((_config: any) => {
   eva.state_updates = false;
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
+      <ToasterProvider />
       <HMIApp Dashboard={SDash} login_props={login_props} />
     </React.StrictMode>
   );
