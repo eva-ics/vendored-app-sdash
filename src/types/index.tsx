@@ -22,12 +22,12 @@ export interface HeaderProps {
 
 type SubmenuItem = {
     value: string;
-    to?: string;
+    to: string;
 };
 
 export interface NavElement {
     value: any;
-    to: string;
+    to?: string;
     submenus?: SubmenuItem[];
 }
 
