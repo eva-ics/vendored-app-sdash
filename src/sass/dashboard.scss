@@ -273,11 +273,12 @@ td {
     margin-top: 50px;
 }
 
-.admin-required-logout {
+.admin-required-links {
     margin-top: 50px;
     > a {
         text-decoration: underline;
         font-size: 20px;
+        padding: 20px;
     }
 }
 
