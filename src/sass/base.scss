@@ -7,27 +7,29 @@ $cards-bg-color: #191d22;
 $table-header-gb: #0b1c3b;
 $main-blue-color: #0085ff;
 $menu-hover-color: #555;
+$nav-menu-bg-color: #0a214f;
+$secondary-blue-color: #0a214f;
 
 body {
-  font-family: "Roboto", sans-serif;
-  background-color: $body-bg-color;
-  color: $main-text-color;
-  overflow-x: hidden;
+    font-family: "Roboto", sans-serif;
+    background-color: $body-bg-color;
+    color: $main-text-color;
+    overflow-x: hidden;
 }
 
 .root-container {
-  width: 100%;
-  margin: 0 auto;
+    width: 100%;
+    margin: 0 auto;
 }
 
 div.eva.login.logo {
-  &:before{
-    content: url("../icon.svg");
-  }
+    &:before {
+        content: url("../icon.svg");
+    }
 }
 
 div.eva.login.header {
-  &:before {
-    content: "EVA ICS node system dashboard"
-  }
+    &:before {
+        content: "EVA ICS node system dashboard";
+    }
 }
