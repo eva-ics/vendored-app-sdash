@@ -52,7 +52,7 @@ const Layout = ({ logout }: LayoutProps) => {
         { value: "Log", to: "?d=log" },
         {
             value: "Navigate",
-            to: "?d=navigate",
+
             submenus: [
                 { value: "Main app", to: "/" },
                 { value: "Vendored apps", to: "/va/" },

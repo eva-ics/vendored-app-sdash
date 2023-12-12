@@ -1,15 +1,13 @@
+import { useState } from "react";
 import { SideMenuProps } from "../types";
 import { AiOutlineClose } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
 
 const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuProps) => {
-    const handleClickMenu = (value: string, to: string) => {
-        if (value !== "Navigate") {
-            toggleMenu();
-        }
-        if (to === "logout") {
-            logout();
-        }
+    const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
+
+    const toggleSubMenu = (menuItem: string) => {
+        openSubMenu === menuItem ? setOpenSubMenu(null) : setOpenSubMenu(menuItem);
     };
 
     return (
@@ -22,25 +20,40 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                                 <AiOutlineClose size={25} />
                             </button>
                             <nav id="sidebar">
-                                <ul>
+                                <ul className="side-menu-list">
                                     {nav.map((v, idx) => {
+                                        const isCurrent = current_page === v.value;
+                                        const containerClass = isCurrent
+                                            ? "side-menu-current"
+                                            : "side-menu-item";
+
                                         return (
                                             <li key={idx}>
-                                                <NavLink
-                                                    className={
-                                                        current_page === v.value
-                                                            ? "side-menu-current"
-                                                            : ""
-                                                    }
-                                                    onClick={() =>
-                                                        handleClickMenu(v.value, v.to)
-                                                    }
-                                                    to={v.to}
-                                                >
-                                                    {v.value}
-                                                </NavLink>
+                                                {v.to ? (
+                                                    <NavLink
+                                                        to={v.to}
+                                                        onClick={() => {
+                                                            toggleSubMenu(v.value);
+                                                            toggleMenu();
+                                                        }}
+                                                    >
+                                                        <div className={containerClass}>
+                                                            {v.value}
+                                                        </div>
+                                                    </NavLink>
+                                                ) : (
+                                                    <div
+                                                        className={containerClass}
+                                                        style={{ cursor: "pointer" }}
+                                                        onClick={() =>
+                                                            toggleSubMenu(v.value)
+                                                        }
+                                                    >
+                                                        {v.value}
+                                                    </div>
+                                                )}
 
-                                                {current_page === v.value &&
+                                                {openSubMenu === v.value &&
                                                     v.submenus &&
                                                     v.submenus.length > 0 && (
                                                         <ul className="subitem-list">
@@ -58,10 +71,10 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                                                                                 subItem.to
                                                                             }
                                                                             onClick={() => {
-                                                                                handleClickMenu(
-                                                                                    subItem.value,
-                                                                                    subItem.to
-                                                                                );
+                                                                                subItem.to ===
+                                                                                    "logout" &&
+                                                                                    logout();
+                                                                                toggleMenu();
                                                                             }}
                                                                         >
                                                                             {
