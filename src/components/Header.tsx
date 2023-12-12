@@ -24,28 +24,39 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
           {nav.map((v, idx) => {
             let class_name = "nav-link";
             let class_name_container = "nav-link-container";
+             let isCurrent = false;
             if (current_page == v.value) {
               class_name += " nav-link-current";
               class_name_container += " nav-link-container-current";
+               isCurrent = true;
             }
             return (
               <li className={class_name} key={idx}>
                 <NavLink key={idx} to={v.to}>
                   <div className={class_name_container}>{v.value}</div>
                 </NavLink>
+
+                 {isCurrent && v.submenus && v.submenus.length > 0 && (
+                                    <ul className="submenu">
+                                        {v.submenus.map((submenuItem, subIdx) => (
+                                            <li className="submenu-item" key={subIdx}>
+                                                <NavLink
+                                                    to={submenuItem.to}
+                                                    onClick={() =>
+                                                        submenuItem.to === "logout" &&
+                                                        logout()
+                                                    }
+                                                >
+                                                    {submenuItem.value}
+                                                </NavLink>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
               </li>
             );
           })}
-          <li className="nav-link" style={{ marginLeft: "30px" }}>
-            <NavLink
-              onClick={() => {
-                logout();
-              }}
-              to="?"
-            >
-              <div className="nav-link-container">Logout</div>
-            </NavLink>
-          </li>
+          
         </ul>
       </nav>
     </header>
