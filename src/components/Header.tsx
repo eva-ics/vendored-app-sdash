@@ -10,6 +10,15 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
 
     const eva = get_engine() as Eva;
 
+    const handleSubClick = (event: any) => {
+        if (event.target.tagName !== "A") {
+            const link = event.currentTarget.querySelector("a");
+            if (link) {
+                link.click();
+            }
+        }
+    };
+
     return (
         <header className="header">
             <button className="menu-icon-btn" onClick={toggleMenu}>
@@ -69,7 +78,11 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                                     v.submenus.length > 0 && (
                                         <ul className="submenu">
                                             {v.submenus.map((submenuItem, subIdx) => (
-                                                <li className="submenu-item" key={subIdx}>
+                                                <li
+                                                    className="submenu-item"
+                                                    key={subIdx}
+                                                    onClick={handleSubClick}
+                                                >
                                                     <NavLink
                                                         to={
                                                             submenuItem.to === "logout"
