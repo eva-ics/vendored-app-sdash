@@ -9,6 +9,8 @@ import {
 } from "bmat/dashtable";
 import { useQueryParams } from "bmat/hooks";
 import { timestampRFC3339 } from "bmat/time";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 
 const formatError = (err: EvaError | undefined): string => {
     if (err) {
@@ -88,14 +90,81 @@ const DashboardAccounting = () => {
         );
     };
 
+    const pushColData = ({
+        colsData,
+        id,
+        value,
+        sort_value,
+        disable_filter_by,
+        className,
+        cols,
+    }: {
+        colsData: DashTableColData[];
+        id: string;
+        value: any;
+        sort_value?: any;
+        disable_filter_by?: boolean;
+        className?: string;
+        cols?: { [key: string]: boolean };
+    }) => {
+        if (cols && !(cols as any)[id]) {
+            return;
+        }
+        const data = {
+            value: (
+                <>
+                    {value}
+                    {value === null || value === "" || disable_filter_by ? (
+                        ""
+                    ) : (
+                        <div
+                            className="filter-button-add"
+                            style={{
+                                display: "inline-block",
+                                width: "5px",
+                                marginLeft: "2px",
+                                color: "#117711",
+                                cursor: "pointer",
+                            }}
+                            onClick={() => setLogFilterParams({ [id]: value })}
+                        >
+                            &nbsp;
+                            <AddCircleOutlineIcon fontSize="inherit" />
+                        </div>
+                    )}
+                </>
+            ),
+            sort_value: sort_value === undefined ? value : sort_value,
+            className: className,
+        };
+        colsData.push(data);
+    };
+
     const filter: DashTableFilter = [
         [
             format_col("Node", "node") as any,
-            <input
-                size={6}
-                value={params.filter.node || ""}
-                onChange={(e) => setLogFilterParams({ node: e.target.value || null })}
-            />,
+            <>
+                <input
+                    size={6}
+                    value={params.filter.node || ""}
+                    onChange={(e) => setLogFilterParams({ node: e.target.value || null })}
+                />
+                {params.filter.node ? (
+                    <div
+                        style={{
+                            display: "inline-block",
+                            color: "red",
+                            cursor: "pointer",
+                        }}
+                        onClick={() => setLogFilterParams({ node: null })}
+                    >
+                        &nbsp;
+                        <RemoveCircleOutlineIcon fontSize="inherit" />
+                    </div>
+                ) : (
+                    ""
+                )}
+            </>,
         ],
         [
             format_col("User", "u"),
@@ -116,7 +185,7 @@ const DashboardAccounting = () => {
         [
             format_col("Service", "svc"),
             <input
-                size={12}
+                size={14}
                 value={params.filter.svc || ""}
                 onChange={(e) => setLogFilterParams({ svc: e.target.value || null })}
             />,
@@ -173,7 +242,7 @@ const DashboardAccounting = () => {
         [
             format_col("Error", "err"),
             <input
-                size={20}
+                size={30}
                 value={params.filter.err || ""}
                 onChange={(e) => setLogFilterParams({ err: e.target.value || null })}
             />,
@@ -181,32 +250,36 @@ const DashboardAccounting = () => {
     ];
 
     const data: DashTableData = records?.data?.toReversed().map((record: any) => {
-        const values: DashTableColData[] = [
+        const colsData: DashTableColData[] = [
             {
                 value: timestampRFC3339(record.t, true),
                 sort_value: record.t,
             },
         ];
-        cols.node && values.push({ value: record.node });
-        cols.u && values.push({ value: record.u || "" });
-        cols.src && values.push({ value: record.src || "" });
-        cols.svc && values.push({ value: record.svc || "" });
-        cols.subj && values.push({ value: record.subj || "" });
-        cols.oid && values.push({ value: record.oid || "" });
-        cols.note && values.push({ value: record.note || "" });
-        cols.data &&
-            values.push({
-                value: record.data ? (
-                    <pre>{JSON.stringify(record.data, null, 2)}</pre>
-                ) : (
-                    ""
-                ),
-                className: "log-record-message",
-            });
-        cols.code && values.push({ value: record.code });
-        cols.err && values.push({ value: record.err || "" });
+        pushColData({ colsData, id: "node", value: record.node, cols });
+        pushColData({ colsData, id: "u", value: record.u || "", cols });
+        pushColData({ colsData, id: "src", value: record.src || "", cols });
+        pushColData({ colsData, id: "svc", value: record.svc || "", cols });
+        pushColData({ colsData, id: "subj", value: record.subj || "", cols });
+        pushColData({ colsData, id: "oid", value: record.oid || "", cols });
+        pushColData({ colsData, id: "note", value: record.note || "", cols });
+        pushColData({
+            colsData,
+            id: "data",
+            value: record.data ? <pre>{JSON.stringify(record.data, null, 2)}</pre> : "",
+            cols,
+            disable_filter_by: true,
+            className: "log-record-message",
+        });
+        pushColData({ colsData, id: "code", value: record.code, cols });
+        pushColData({
+            colsData,
+            id: "err",
+            value: record.err || "",
+            cols,
+        });
         return {
-            data: values,
+            data: colsData,
             className: `log-record-${record.code === 0 ? "info" : "error"}`,
         };
     });

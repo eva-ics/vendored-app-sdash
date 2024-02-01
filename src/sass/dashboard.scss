@@ -387,3 +387,15 @@ td.col-time {
     padding-top: 10px;
     font-weight: bold;
 }
+
+.bmat-dashtable-filter > div > label > input {
+    margin-right: 2px;
+}
+
+.bmat-dashtable-col:hover .filter-button-add {
+    visibility: visible;
+}
+
+.filter-button-add {
+    visibility: hidden;
+}
