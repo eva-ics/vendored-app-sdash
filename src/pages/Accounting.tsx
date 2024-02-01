@@ -56,8 +56,14 @@ const DashboardAccounting = () => {
                 setter: setParams,
                 pack_json: true,
             },
+            {
+                name: "cols",
+                value: cols,
+                setter: setCols,
+                pack_json: true,
+            },
         ],
-        [params]
+        [params, cols]
     );
 
     const records = useEvaAPICall({
