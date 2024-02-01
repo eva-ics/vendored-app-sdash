@@ -40,7 +40,7 @@ const DashboardLog = () => {
   );
 
   const records = useEvaAPICall({
-    method: loaded ? `bus::eva.core::log.get` : undefined,
+    method: loaded ? "bus::eva.core::log.get" : undefined,
     params: params,
     update: 1
   });

@@ -340,6 +340,14 @@ tr.log-record-error {
 .log-record-message {
     white-space: normal;
     line-height: 18px;
+
+    > pre {
+        font-family: "Roboto", sans-serif;
+        font-size: 10px;
+        @include media(tablet) {
+            font-size: 12px;
+        }
+    }
 }
 
 td.col-fit {
@@ -355,4 +363,27 @@ td.col-uptime {
 td.col-time {
     width: 230px;
     white-space: nowrap;
+}
+
+.filter-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.filter-label-off {
+    color: #555;
+    text-decoration: line-through;
+}
+
+.bmat-dashtable-filter {
+    > div {
+        padding: 5px;
+    }
+}
+
+.api-error {
+    color: #ee5555;
+    padding-left: 20px;
+    padding-top: 10px;
+    font-weight: bold;
 }
