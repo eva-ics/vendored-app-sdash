@@ -96,11 +96,7 @@ const createRichFilter = ({
                 />
                 <div
                     title={`clear ${col.name} filter`}
-                    style={{
-                        display: "inline-block",
-                        color: "red",
-                        cursor: "pointer",
-                    }}
+                    className="filter-button-remove"
                     onClick={() => setParams({ [col.id]: null })}
                 >
                     {params[col.id] !== null ? (
