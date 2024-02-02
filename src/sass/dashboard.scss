@@ -375,6 +375,10 @@ td.col-time {
     text-decoration: line-through;
 }
 
+.filter-label-disabled {
+    color: #333;
+}
+
 .bmat-dashtable-filter {
     > div {
         padding: 5px;
@@ -397,5 +401,10 @@ td.col-time {
 }
 
 .filter-button-add {
+    display: inline-block;
+    width: 5px;
+    margin-left: 2px;
+    color: #117711;
+    cursor: pointer;
     visibility: hidden;
 }
