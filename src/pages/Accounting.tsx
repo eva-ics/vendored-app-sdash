@@ -14,6 +14,35 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import DateTimePickerSelect from "../components/date_time_picker.tsx";
 
+const DEFAULT_FRAME_SEC = 3600;
+
+class Timestamp {
+    t: number;
+    constructor(src?: Date | number) {
+        if (src === null || src === undefined) {
+            this.t = Date.now() / 1000;
+        } else if (typeof src === "number") {
+            this.t = src;
+        } else {
+            this.t = src.getTime() / 1000;
+        }
+    }
+    addSec(sec: number): Timestamp {
+        this.t += sec;
+        return this;
+    }
+    subSec(sec: number): Timestamp {
+        this.t -= sec;
+        return this;
+    }
+    toDate(): Date {
+        return new Date(this.t * 1000);
+    }
+    toNumber(): number {
+        return this.t;
+    }
+}
+
 const ErrorMessage = ({ error, className }: { error?: EvaError; className?: string }) => {
     return (
         <div className={className || ""}>
@@ -27,12 +56,18 @@ enum FilterFieldKind {
     Integer = "integer",
 }
 
+enum FilterActionKind {
+    Equal = "=",
+    Like = "~",
+}
+
 interface Column {
     id: string;
     name: string;
     enabled: boolean;
     filterInputSize?: number;
     filterFieldKind?: FilterFieldKind;
+    filterActionKind?: FilterActionKind;
 }
 
 const formatValue = (value: string, kind: FilterFieldKind): any => {
@@ -68,17 +103,20 @@ const createRichFilter = ({
         labelClassName +=
             (col?.enabled === true ? " " : " filter-label-off ") + (className || "");
         const label = (
-            <span
-                title={`toggle ${col.name} column display`}
-                className={labelClassName}
-                onClick={() => {
-                    col.enabled = !col.enabled;
-                    const nc: Column[] = [...cols];
-                    setCols(nc);
-                }}
-            >
-                {col.name}
-            </span>
+            <div style={{ display: "inline-block" }}>
+                <span
+                    title={`toggle ${col.name} column display`}
+                    className={labelClassName}
+                    onClick={() => {
+                        col.enabled = !col.enabled;
+                        const nc: Column[] = [...cols];
+                        setCols(nc);
+                    }}
+                >
+                    {col.name}
+                </span>{" "}
+                {col.filterActionKind || "="}
+            </div>
         );
         const input = (
             <>
@@ -159,45 +197,62 @@ const pushColData = ({
 };
 
 const DashboardAccounting = () => {
-    const [params, setParams] = useState({
-        filter: {
-            t_start: Date.now() / 1000 - 3600,
-            t_end: null,
-            node: null,
-            u: null,
-            src: null,
-            svc: null,
-            subj: null,
-            oid: null,
-            note: null,
-            data: null,
-            code: null,
-            err: null,
-        },
+    const [filterParams, setFilterParams] = useState({
+        t_start: null as number | null,
+        t_end: null as number | null,
+        node: null as string | null,
+        u: null as string | null,
+        src: null as string | null,
+        svc: null as string | null,
+        subj: null as string | null,
+        oid: null as string | null,
+        note: null as string | null,
+        data: null as string | null,
+        code: null as number | null,
+        err: null as string | null,
     });
 
-    const [lastStartSelected, setLastStartSelected] = useState(
-        new Date(Date.now() - 3_600_000)
-    );
-    const [lastEndSelected, setLastEndSelected] = useState(new Date());
-
     const [cols, setCols] = useState<Column[]>([
-        { id: "node", name: "Node", enabled: true, filterInputSize: 6 },
-        { id: "svc", name: "Service", enabled: true, filterInputSize: 14 },
-        { id: "u", name: "User", enabled: true, filterInputSize: 6 },
-        { id: "src", name: "Source", enabled: false, filterInputSize: 9 },
-        { id: "subj", name: "Subject", enabled: true, filterInputSize: 12 },
+        { id: "node", name: "node", enabled: true, filterInputSize: 6 },
+        {
+            id: "svc",
+            name: "service",
+            enabled: true,
+            filterInputSize: 14,
+            filterActionKind: FilterActionKind.Like,
+        },
+        { id: "u", name: "user", enabled: true, filterInputSize: 6 },
+        { id: "src", name: "source", enabled: false, filterInputSize: 9 },
+        { id: "subj", name: "subject", enabled: true, filterInputSize: 12 },
         {
             id: "code",
-            name: "Code",
+            name: "code",
             enabled: true,
             filterInputSize: 5,
             filterFieldKind: FilterFieldKind.Integer,
         },
         { id: "oid", name: "OID", enabled: false, filterInputSize: 30 },
-        { id: "note", name: "Note", enabled: true, filterInputSize: 30 },
-        { id: "data", name: "Data", enabled: false, filterInputSize: 30 },
-        { id: "err", name: "Error", enabled: true, filterInputSize: 30 },
+        {
+            id: "note",
+            name: "note",
+            enabled: true,
+            filterInputSize: 30,
+            filterActionKind: FilterActionKind.Like,
+        },
+        {
+            id: "data",
+            name: "data",
+            enabled: false,
+            filterInputSize: 30,
+            filterActionKind: FilterActionKind.Like,
+        },
+        {
+            id: "err",
+            name: "error",
+            enabled: true,
+            filterInputSize: 30,
+            filterActionKind: FilterActionKind.Like,
+        },
     ]);
 
     const colsEnabled = useMemo<string[]>(() => {
@@ -207,9 +262,9 @@ const DashboardAccounting = () => {
     const loaded = useQueryParams(
         [
             {
-                name: "params",
-                value: params,
-                setter: setParams,
+                name: "filter",
+                value: filterParams,
+                setter: setFilterParams,
                 pack_json: true,
             },
             {
@@ -225,34 +280,62 @@ const DashboardAccounting = () => {
                 pack_json: true,
             },
         ],
-        [params, cols]
+        [filterParams, cols]
     );
+
+    const params = useMemo(() => {
+        const f = { ...filterParams };
+        if (f.t_start === null) {
+            f.t_start = new Timestamp().subSec(DEFAULT_FRAME_SEC).toNumber();
+        }
+        return {
+            filter: f,
+        };
+    }, [filterParams]);
+
+    const updateInterval = useMemo(() => {
+        if (
+            filterParams.t_end === null ||
+            filterParams.t_end > new Timestamp().toNumber()
+        ) {
+            return 1;
+        } else {
+            return 5;
+        }
+    }, [filterParams]);
 
     const records = useEvaAPICall({
         method: loaded ? "x::eva.aaa.accounting::query" : undefined,
         params: params,
-        update: 1,
+        update: updateInterval,
     });
 
     const setLogFilterParams = (p: object) => {
-        let np: any = { ...params.filter };
+        let np: any = { ...filterParams };
         Object.keys(p).forEach((k) => {
             np[k] = (p as any)[k];
         });
-        setParams({ filter: np });
+        setFilterParams(np);
     };
+
+    const t_start =
+        filterParams.t_start === null
+            ? new Timestamp().subSec(DEFAULT_FRAME_SEC)
+            : new Timestamp(filterParams.t_start);
+    const t_end =
+        filterParams.t_end === null ? new Timestamp() : new Timestamp(filterParams.t_end);
 
     const timeFilter: DashTableFilter = [
         [
             "",
             <>
                 <DateTimePickerSelect
-                    enabled={params.filter.t_end !== null}
+                    enabled={filterParams.t_start !== null}
                     element_id="t_start"
-                    current_value={lastStartSelected}
+                    update_key={filterParams.t_start === null ? records.data : null}
+                    current_value={t_start.toDate()}
                     setParam={(d: Date) => {
-                        setLastStartSelected(d);
-                        setLogFilterParams({ t_start: d.getTime() / 1000 });
+                        setLogFilterParams({ t_start: new Timestamp(d).toNumber() });
                     }}
                 />
             </>,
@@ -260,33 +343,37 @@ const DashboardAccounting = () => {
         [
             "",
             <>
-                <span
+                <div
                     title="toggle real-time view"
-                    className={params.filter.t_end ? "" : "filter-label-disabled"}
+                    className={
+                        "filter-label filter-label-button " +
+                        (params.filter.t_end ? "filter-label " : "filter-label-disabled")
+                    }
                     style={{ cursor: "pointer" }}
                     onClick={(e) => {
                         e.preventDefault();
                         if (params.filter.t_end === null) {
                             setLogFilterParams({
-                                t_end: lastEndSelected.getTime() / 1000,
+                                t_start: t_start.toNumber(),
+                                t_end: t_end.toNumber(),
                             });
                         } else {
                             setLogFilterParams({
-                                t_start: Date.now() / 1000 - 3600,
+                                t_start: null,
                                 t_end: null,
                             });
                         }
                     }}
                 >
                     <DoubleArrowIcon fontSize="inherit" />
-                </span>
+                </div>
                 <DateTimePickerSelect
                     enabled={params.filter.t_end !== null}
                     element_id="t_end"
-                    current_value={lastEndSelected}
+                    update_key={filterParams.t_start === null ? records.data : null}
+                    current_value={t_end.toDate()}
                     setParam={(d: Date) => {
-                        setLastEndSelected(d);
-                        setLogFilterParams({ t_end: d.getTime() / 1000 });
+                        setLogFilterParams({ t_end: new Timestamp(d).toNumber() });
                     }}
                 />
             </>,
