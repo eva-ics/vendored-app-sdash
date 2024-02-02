@@ -405,6 +405,12 @@ td.col-time {
     padding-left: 20px;
     padding-top: 10px;
     font-weight: bold;
+    a {
+      text-decoration: underline;
+    }
+    a:hover {
+      color: orange;
+    }
 }
 
 .bmat-dashtable-filter > div > label > input {

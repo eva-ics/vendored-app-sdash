@@ -196,7 +196,7 @@ const pushColData = ({
     colsData.push(data);
 };
 
-const DashboardAccounting = () => {
+const DashboardEvents = () => {
     const [filterParams, setFilterParams] = useState({
         t_start: null as number | null,
         t_end: null as number | null,
@@ -487,8 +487,21 @@ const DashboardAccounting = () => {
           )
         : [];
 
-    const header = <ErrorMessage error={records.error} className="api-error" />;
-
+    let header = (
+        <div>
+            <ErrorMessage error={records.error} className="api-error" />
+            {records?.error?.code === -32113 ? (
+                <div className="api-error">
+                    Unable to find eva.aaa.accounting service. Read{" "}
+                    <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
+                        how to deploy a service instance
+                    </a>
+                </div>
+            ) : (
+                ""
+            )}{" "}
+        </div>
+    );
     return (
         <div>
             <div className="dashboard-main-wrapper dashboard-main-wrapper-big">
@@ -497,7 +510,7 @@ const DashboardAccounting = () => {
                         <DashTable
                             id="accev"
                             header={header}
-                            title="Event accounting"
+                            title="Event audit trail"
                             cols={colsToShow}
                             filter={filter}
                             data={data}
@@ -511,4 +524,4 @@ const DashboardAccounting = () => {
     );
 };
 
-export default DashboardAccounting;
+export default DashboardEvents;
