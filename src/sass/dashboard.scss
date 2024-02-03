@@ -406,10 +406,10 @@ td.col-time {
     padding-top: 10px;
     font-weight: bold;
     a {
-      text-decoration: underline;
+        text-decoration: underline;
     }
     a:hover {
-      color: orange;
+        color: orange;
     }
 }
 
@@ -434,4 +434,8 @@ td.col-time {
     display: inline-block;
     color: #ee2222;
     cursor: pointer;
+}
+
+.button_bar {
+    padding-left: 20px;
 }

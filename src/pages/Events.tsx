@@ -16,6 +16,47 @@ import DateTimePickerSelect from "../components/date_time_picker.tsx";
 
 const DEFAULT_FRAME_SEC = 3600;
 
+const downloadCSV = (csvContent: any, filename = "events.csv") => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+};
+
+const generateCSV = (data: any, cols: Column[]) => {
+    const enabledCols = cols.filter((col) => col.enabled);
+    const colIds = enabledCols.map((col) => col.id);
+    const escapeCSV = (s: any, col_id?: string): string | number => {
+        if (col_id === "data") {
+            return escapeCSV(JSON.stringify(s));
+        }
+        if (s === null || s === undefined) return "";
+        if (typeof s === "number") return s;
+        let escapedStr = s.replace(/"/g, '""');
+        return `"${escapedStr}"`;
+    };
+    let csvContent = "time,t";
+    if (colIds.length > 0) {
+        csvContent += "," + colIds.join(",") + "\n";
+    }
+    data.forEach((row: any) => {
+        const rowArray = [timestampRFC3339(row.t), row.t].concat(
+            colIds.map((key) => {
+                const cellValue = row[key];
+                return escapeCSV(cellValue, key);
+            })
+        );
+        csvContent += rowArray.join(",") + "\n";
+    });
+    return csvContent;
+};
+
 class Timestamp {
     t: number;
     constructor(src?: Date | number) {
@@ -488,19 +529,32 @@ const DashboardEvents = () => {
         : [];
 
     let header = (
-        <div>
-            <ErrorMessage error={records.error} className="api-error" />
-            {records?.error?.code === -32113 ? (
-                <div className="api-error">
-                    Unable to find eva.aaa.accounting service. Read{" "}
-                    <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
-                        how to deploy a service instance
-                    </a>
-                </div>
-            ) : (
-                ""
-            )}{" "}
-        </div>
+        <>
+            <div>
+                <ErrorMessage error={records.error} className="api-error" />
+                {records?.error?.code === -32113 ? (
+                    <div className="api-error">
+                        Unable to find eva.aaa.accounting service. Read{" "}
+                        <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
+                            how to deploy a service instance
+                        </a>
+                    </div>
+                ) : (
+                    ""
+                )}{" "}
+            </div>
+            <div className="button_bar">
+                <button
+                    disabled={records.data === null}
+                    onClick={() => {
+                        const csvContent = generateCSV(records.data, cols);
+                        downloadCSV(csvContent);
+                    }}
+                >
+                    Export as CSV
+                </button>
+            </div>
+        </>
     );
     return (
         <div>
