@@ -15,6 +15,7 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import DateTimePickerSelect from "../components/date_time_picker.tsx";
 
 const DEFAULT_FRAME_SEC = 3600;
+const SVC_ID = "eva.aaa.accounting";
 
 const downloadCSV = (csvContent: any, filename = "events.csv") => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -346,7 +347,7 @@ const DashboardEvents = () => {
     }, [filterParams]);
 
     const records = useEvaAPICall({
-        method: loaded ? "x::eva.aaa.accounting::query" : undefined,
+        method: loaded ? `x::${SVC_ID}::query` : undefined,
         params: params,
         update: updateInterval,
     });
@@ -534,7 +535,7 @@ const DashboardEvents = () => {
                 <ErrorMessage error={records.error} className="api-error" />
                 {records?.error?.code === -32113 ? (
                     <div className="api-error">
-                        Unable to find eva.aaa.accounting service. Read{" "}
+                        Unable to call {SVC_ID} service. Read{" "}
                         <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
                             how to deploy a service instance
                         </a>
