@@ -17,7 +17,7 @@ import DateTimePickerSelect from "../components/date_time_picker.tsx";
 const DEFAULT_FRAME_SEC = 3600;
 const SVC_ID = "eva.aaa.accounting";
 
-const downloadCSV = (csvContent: any, filename = "events.csv") => {
+const downloadCSV = (csvContent: string, filename: string) => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -30,7 +30,7 @@ const downloadCSV = (csvContent: any, filename = "events.csv") => {
     URL.revokeObjectURL(url);
 };
 
-const generateCSV = (data: any, cols: Column[]) => {
+const generateCSV = (data: any, cols: Column[]): string => {
     const enabledCols = cols.filter((col) => col.enabled);
     const colIds = enabledCols.map((col) => col.id);
     const escapeCSV = (s: any, col_id?: string): string | number => {
@@ -549,7 +549,7 @@ const DashboardEvents = () => {
                     disabled={records.data === null}
                     onClick={() => {
                         const csvContent = generateCSV(records.data, cols);
-                        downloadCSV(csvContent);
+                        downloadCSV(csvContent, "events.csv");
                     }}
                 >
                     Export as CSV
