@@ -42,12 +42,12 @@ const generateCSV = (data: any, cols: Column[]) => {
         let escapedStr = s.replace(/"/g, '""');
         return `"${escapedStr}"`;
     };
-    let csvContent = "time,t";
+    let csvContent = "time";
     if (colIds.length > 0) {
         csvContent += "," + colIds.join(",") + "\n";
     }
     data.forEach((row: any) => {
-        const rowArray = [timestampRFC3339(row.t), row.t].concat(
+        const rowArray = [timestampRFC3339(row.t) as any].concat(
             colIds.map((key) => {
                 const cellValue = row[key];
                 return escapeCSV(cellValue, key);
