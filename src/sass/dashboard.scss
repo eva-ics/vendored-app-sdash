@@ -365,7 +365,7 @@ td.col-time {
     white-space: nowrap;
 }
 
-.filter-label {
+.bmat-dashtable-filter-label {
     cursor: pointer;
     user-select: none;
     border: 1px solid #999;
@@ -374,13 +374,13 @@ td.col-time {
     border-radius: 4px;
 }
 
-.filter-label-off {
+.bmat-dashtable-filter-label-off {
     color: #555;
     text-decoration: line-through;
     border: 1px solid #555;
 }
 
-.filter-label-button {
+.bmat-dashtable-filter-label-button {
     display: inline-block;
     position: relative;
     top: 1px;
@@ -400,7 +400,7 @@ td.col-time {
     }
 }
 
-.api-error {
+.eva-error {
     color: #ee5555;
     padding-left: 20px;
     padding-top: 10px;
@@ -417,11 +417,11 @@ td.col-time {
     margin-right: 2px;
 }
 
-.bmat-dashtable-col:hover .filter-button-add {
+.bmat-dashtable-col:hover .bmat-dashtable-filter-button-add {
     visibility: visible;
 }
 
-.filter-button-add {
+.bmat-dashtable-filter-button-add {
     display: inline-block;
     width: 5px;
     margin-left: 2px;
@@ -430,7 +430,7 @@ td.col-time {
     visibility: hidden;
 }
 
-.filter-button-remove {
+.bmat-dashtable-filter-button-remove {
     display: inline-block;
     color: #ee2222;
     cursor: pointer;
@@ -439,4 +439,13 @@ td.col-time {
 .button_bar {
     padding-top: 10px;
     padding-left: 20px;
+}
+
+.bmat-dashtable-filter-label-container {
+    display: inline-block;
+}
+
+.bmat-dashtable-filter-spacer {
+    display: inline-block;
+    width: 14px;
 }

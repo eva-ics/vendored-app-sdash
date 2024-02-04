@@ -1,242 +1,25 @@
-import { useEvaAPICall } from "@eva-ics/webengine-react";
-import { EvaError } from "@eva-ics/webengine";
+import { useEvaAPICall, EvaErrorMessage } from "@eva-ics/webengine-react";
 import { useState, useMemo } from "react";
+import { Timestamp } from "bmat/time";
+import { downloadCSV } from "bmat/dom";
 import {
     DashTable,
     DashTableFilter,
     DashTableData,
+    DashTableColType,
     DashTableColData,
+    ColumnRichInfo,
+    DashTableFilterActionKind,
+    pushRichColData,
+    createRichFilter,
+    generateDashTableRichCSV,
 } from "bmat/dashtable";
 import { useQueryParams } from "bmat/hooks";
-import { timestampRFC3339 } from "bmat/time";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import DateTimePickerSelect from "../components/date_time_picker.tsx";
 
 const DEFAULT_FRAME_SEC = 3600;
 const SVC_ID = "eva.aaa.accounting";
-
-const downloadCSV = (csvContent: string, filename: string) => {
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", filename);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-};
-
-const generateCSV = (data: any, cols: Column[]): string => {
-    const enabledCols = cols.filter((col) => col.enabled);
-    const colIds = enabledCols.map((col) => col.id);
-    const escapeCSV = (s: any, col_id?: string): string | number => {
-        if (col_id === "data") {
-            return escapeCSV(JSON.stringify(s));
-        }
-        if (s === null || s === undefined) return "";
-        if (typeof s === "number") return s;
-        let escapedStr = s.replace(/"/g, '""');
-        return `"${escapedStr}"`;
-    };
-    let csvContent = "time";
-    if (colIds.length > 0) {
-        csvContent += "," + colIds.join(",") + "\n";
-    }
-    data.forEach((row: any) => {
-        const rowArray = [timestampRFC3339(row.t) as any].concat(
-            colIds.map((key) => {
-                const cellValue = row[key];
-                return escapeCSV(cellValue, key);
-            })
-        );
-        csvContent += rowArray.join(",") + "\n";
-    });
-    return csvContent;
-};
-
-class Timestamp {
-    t: number;
-    constructor(src?: Date | number) {
-        if (src === null || src === undefined) {
-            this.t = Date.now() / 1000;
-        } else if (typeof src === "number") {
-            this.t = src;
-        } else {
-            this.t = src.getTime() / 1000;
-        }
-    }
-    addSec(sec: number): Timestamp {
-        this.t += sec;
-        return this;
-    }
-    subSec(sec: number): Timestamp {
-        this.t -= sec;
-        return this;
-    }
-    toDate(): Date {
-        return new Date(this.t * 1000);
-    }
-    toNumber(): number {
-        return this.t;
-    }
-}
-
-const ErrorMessage = ({ error, className }: { error?: EvaError; className?: string }) => {
-    return (
-        <div className={className || ""}>
-            {error ? error.message || "Error" + ` (${error.code})` : ""}
-        </div>
-    );
-};
-
-enum FilterFieldKind {
-    String = "string",
-    Integer = "integer",
-}
-
-enum FilterActionKind {
-    Equal = "=",
-    Like = "~",
-}
-
-interface Column {
-    id: string;
-    name: string;
-    enabled: boolean;
-    filterInputSize?: number;
-    filterFieldKind?: FilterFieldKind;
-    filterActionKind?: FilterActionKind;
-}
-
-const formatValue = (value: string, kind: FilterFieldKind): any => {
-    switch (kind) {
-        case FilterFieldKind.String:
-            return value || null;
-            break;
-        case FilterFieldKind.Integer:
-            let n: string | number | null = value === "" ? null : parseInt(value);
-            if (n !== null && isNaN(n)) {
-                n = null;
-            }
-            return n;
-            break;
-    }
-};
-
-const createRichFilter = ({
-    cols,
-    setCols,
-    params,
-    setParams,
-    className,
-}: {
-    cols: Column[];
-    setCols: (cols: Column[]) => void;
-    params: { [key: string]: any };
-    setParams: (o: { [key: string]: any }) => void;
-    className?: string;
-}): DashTableFilter =>
-    cols.map((col) => {
-        let labelClassName = "filter-label";
-        labelClassName +=
-            (col?.enabled === true ? " " : " filter-label-off ") + (className || "");
-        const label = (
-            <div style={{ display: "inline-block" }}>
-                <span
-                    title={`toggle ${col.name} column display`}
-                    className={labelClassName}
-                    onClick={() => {
-                        col.enabled = !col.enabled;
-                        const nc: Column[] = [...cols];
-                        setCols(nc);
-                    }}
-                >
-                    {col.name}
-                </span>{" "}
-                {col.filterActionKind || "="}
-            </div>
-        );
-        const input = (
-            <>
-                <input
-                    size={col.filterInputSize || 10}
-                    value={params[col.id] === null ? "" : params[col.id]}
-                    onChange={(e) =>
-                        setParams({
-                            [col.id]: formatValue(
-                                e.target.value,
-                                col.filterFieldKind || FilterFieldKind.String
-                            ),
-                        })
-                    }
-                />
-                <div
-                    title={`clear ${col.name} filter`}
-                    className="filter-button-remove"
-                    onClick={() => setParams({ [col.id]: null })}
-                >
-                    {params[col.id] !== null ? (
-                        <>
-                            <RemoveCircleOutlineIcon fontSize="inherit" />
-                        </>
-                    ) : (
-                        <div style={{ display: "inline-block", width: 14 }}></div>
-                    )}
-                </div>
-            </>
-        );
-        return [label, input];
-    });
-
-const pushColData = ({
-    colsData,
-    id,
-    value,
-    setParams,
-    sort_value,
-    disable_filter_by,
-    className,
-    cols,
-}: {
-    colsData: DashTableColData[];
-    id: string;
-    value: any;
-    setParams: (o: { [key: string]: any }) => void;
-    sort_value?: any;
-    disable_filter_by?: boolean;
-    className?: string;
-    cols: Column[];
-}) => {
-    const column = cols.find((column) => column.id === id);
-    if (!column?.enabled) {
-        return;
-    }
-    const data = {
-        value: (
-            <>
-                {value}
-                {value === null || value === "" || disable_filter_by ? (
-                    ""
-                ) : (
-                    <div
-                        title={`use the value as ${column.name} filter`}
-                        className="filter-button-add"
-                        onClick={() => setParams({ [id]: value })}
-                    >
-                        <AddCircleOutlineIcon fontSize="inherit" />
-                    </div>
-                )}
-            </>
-        ),
-        sort_value: sort_value === undefined ? value : sort_value,
-        className: className,
-    };
-    colsData.push(data);
-};
 
 const DashboardEvents = () => {
     const [filterParams, setFilterParams] = useState({
@@ -254,14 +37,14 @@ const DashboardEvents = () => {
         err: null as string | null,
     });
 
-    const [cols, setCols] = useState<Column[]>([
+    const [cols, setCols] = useState<ColumnRichInfo[]>([
         { id: "node", name: "node", enabled: true, filterInputSize: 6 },
         {
             id: "svc",
             name: "service",
             enabled: true,
             filterInputSize: 14,
-            filterActionKind: FilterActionKind.Like,
+            filterActionKind: DashTableFilterActionKind.Like,
         },
         { id: "u", name: "user", enabled: true, filterInputSize: 6 },
         { id: "src", name: "source", enabled: false, filterInputSize: 9 },
@@ -271,7 +54,7 @@ const DashboardEvents = () => {
             name: "code",
             enabled: true,
             filterInputSize: 5,
-            filterFieldKind: FilterFieldKind.Integer,
+            columnType: DashTableColType.Integer,
         },
         { id: "oid", name: "OID", enabled: false, filterInputSize: 30 },
         {
@@ -279,26 +62,29 @@ const DashboardEvents = () => {
             name: "note",
             enabled: true,
             filterInputSize: 30,
-            filterActionKind: FilterActionKind.Like,
+            filterActionKind: DashTableFilterActionKind.Like,
         },
         {
             id: "data",
             name: "data",
             enabled: false,
             filterInputSize: 30,
-            filterActionKind: FilterActionKind.Like,
+            filterActionKind: DashTableFilterActionKind.Like,
+            columnType: DashTableColType.JSON,
         },
         {
             id: "err",
             name: "error",
             enabled: true,
             filterInputSize: 30,
-            filterActionKind: FilterActionKind.Like,
+            filterActionKind: DashTableFilterActionKind.Like,
         },
     ]);
 
     const colsEnabled = useMemo<string[]>(() => {
-        return cols.filter((c: Column) => c.enabled).map((c: Column) => c.id);
+        return cols
+            .filter((c: ColumnRichInfo) => c.enabled)
+            .map((c: ColumnRichInfo) => c.id);
     }, [cols]);
 
     const loaded = useQueryParams(
@@ -388,8 +174,8 @@ const DashboardEvents = () => {
                 <div
                     title="toggle real-time view"
                     className={
-                        "filter-label filter-label-button " +
-                        (params.filter.t_end ? "filter-label " : "filter-label-disabled")
+                        "bmat-dashtable-filter-label bmat-dashtable-filter-label-button " +
+                        (params.filter.t_end ? "" : "filter-label-disabled")
                     }
                     style={{ cursor: "pointer" }}
                     onClick={(e) => {
@@ -432,14 +218,15 @@ const DashboardEvents = () => {
     );
 
     const data: DashTableData = records?.data?.toReversed().map((record: any) => {
+        const t = new Timestamp(record.t);
         const colsData: DashTableColData[] = [
             {
-                value: timestampRFC3339(record.t, true),
-                sort_value: record.t,
+                value: t.toRFC3339(true),
+                sort_value: t.toNumber(),
                 className: "col-fit",
             },
         ];
-        pushColData({
+        pushRichColData({
             colsData,
             id: "node",
             value: record.node,
@@ -447,7 +234,7 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "svc",
             value: record.svc || "",
@@ -455,7 +242,7 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "u",
             value: record.u || "",
@@ -463,7 +250,7 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "src",
             value: record.src || "",
@@ -471,7 +258,7 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "subj",
             value: record.subj || "",
@@ -479,7 +266,7 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "code",
             value: record.code,
@@ -487,30 +274,28 @@ const DashboardEvents = () => {
             cols,
             className: "col-fit",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "oid",
             value: record.oid || "",
             setParams: setLogFilterParams,
             cols,
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "note",
             value: record.note || "",
             setParams: setLogFilterParams,
             cols,
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "data",
             value: record.data ? <pre>{JSON.stringify(record.data, null, 2)}</pre> : "",
-            setParams: setLogFilterParams,
             cols,
-            disable_filter_by: true,
             className: "log-record-message",
         });
-        pushColData({
+        pushRichColData({
             colsData,
             id: "err",
             value: record.err || "",
@@ -532,9 +317,9 @@ const DashboardEvents = () => {
     let header = (
         <>
             <div>
-                <ErrorMessage error={records.error} className="api-error" />
+                <EvaErrorMessage error={records.error} />
                 {records?.error?.code === -32113 ? (
-                    <div className="api-error">
+                    <div className="eva-error">
                         Unable to call {SVC_ID} service. Read{" "}
                         <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
                             how to deploy a service instance
@@ -548,7 +333,11 @@ const DashboardEvents = () => {
                 <button
                     disabled={records.data === null}
                     onClick={() => {
-                        const csvContent = generateCSV(records.data, cols);
+                        const csvContent = generateDashTableRichCSV({
+                            data: records.data,
+                            cols,
+                            timeCol: "t",
+                        });
                         downloadCSV(csvContent, "events.csv");
                     }}
                 >
