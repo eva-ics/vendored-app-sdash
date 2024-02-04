@@ -48,7 +48,7 @@ const DashboardLog = () => {
             name: "message",
             enabled: true,
             filterInputSize: 30,
-            filterActionKind: DashTableFilterActionKind.Regex,
+            filterActionKind: DashTableFilterActionKind.Like,
         },
     ]);
 
@@ -76,7 +76,7 @@ const DashboardLog = () => {
             limit: params.limit,
             level: params.lvl,
             mod: params.mod,
-            rx: params.msg,
+            msg: params.msg,
         };
     }, [params]);
 
