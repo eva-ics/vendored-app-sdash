@@ -321,7 +321,10 @@ const DashboardEvents = () => {
                 {records?.error?.code === -32113 ? (
                     <div className="eva-error">
                         Unable to call {SVC_ID} service. Read{" "}
-                        <a href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html">
+                        <a
+                            target="_blank"
+                            href="https://info.bma.ai/en/actual/eva4/svc/eva-aaa-accounting.html"
+                        >
                             how to deploy a service instance
                         </a>
                     </div>
