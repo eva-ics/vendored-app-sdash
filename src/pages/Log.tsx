@@ -15,6 +15,7 @@ import {
 import { downloadCSV } from "bmat/dom";
 import { useQueryParams } from "bmat/hooks";
 import { timestampRFC3339 } from "bmat/time";
+import { addButton, removeButton } from "../components/common.tsx";
 
 const logLevels = ["debug", "info", "warn", "error"];
 const logLimits = [25, 50, 75, 100, 125, 150, 175, 200];
@@ -119,7 +120,7 @@ const DashboardLog = () => {
     ];
 
     const filter: DashTableFilter = tl_filter.concat(
-        createRichFilter({ cols, setCols, params, setParams: setLogParams })
+        createRichFilter({ cols, setCols, params, setParams: setLogParams, removeButton })
     );
 
     const data: DashTableData = records?.data?.toReversed().map((record: any) => {
@@ -143,6 +144,7 @@ const DashboardLog = () => {
             setParams: setLogParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -151,6 +153,7 @@ const DashboardLog = () => {
             setParams: setLogParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,

@@ -17,6 +17,7 @@ import {
 import { useQueryParams } from "bmat/hooks";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import DateTimePickerSelect from "../components/date_time_picker.tsx";
+import { addButton, removeButton } from "../components/common.tsx";
 
 const DEFAULT_FRAME_SEC = 3600;
 const SVC_ID = "eva.aaa.accounting";
@@ -214,6 +215,7 @@ const DashboardEvents = () => {
             setCols,
             params: params.filter,
             setParams: setLogFilterParams,
+            removeButton,
         })
     );
 
@@ -233,6 +235,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -241,6 +244,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -249,6 +253,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -257,6 +262,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -265,6 +271,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -273,6 +280,7 @@ const DashboardEvents = () => {
             setParams: setLogFilterParams,
             cols,
             className: "col-fit",
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -280,6 +288,7 @@ const DashboardEvents = () => {
             value: record.oid || "",
             setParams: setLogFilterParams,
             cols,
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -287,6 +296,7 @@ const DashboardEvents = () => {
             value: record.note || "",
             setParams: setLogFilterParams,
             cols,
+            addButton,
         });
         pushRichColData({
             colsData,
@@ -301,6 +311,7 @@ const DashboardEvents = () => {
             value: record.err || "",
             setParams: setLogFilterParams,
             cols,
+            addButton,
         });
         return {
             data: colsData,
