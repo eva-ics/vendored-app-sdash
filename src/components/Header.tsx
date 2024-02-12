@@ -28,7 +28,7 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                 <div className="dash-info">
                     <img src="icon.svg" className="dash-logo" />
                     <div className="dash-title">
-                        EVA ICS OpCentre. Node: {eva.system_name()} [
+                        EVA ICS System dashboard. Node: {eva.system_name()} [
                         {eva?.server_info?.aci.u}]
                     </div>
                 </div>
