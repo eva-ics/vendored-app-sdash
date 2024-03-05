@@ -10,6 +10,14 @@
     display: inline-block;
 }
 
+.bmat-dashtable-title {
+  @media print {
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
 .dash-title {
     display: inline-block;
 }
@@ -116,6 +124,9 @@
     height: 100%;
     @include media(tablet) {
         padding: 20px;
+    }
+    @media print {
+      color: black;
     }
 }
 
@@ -365,6 +376,31 @@ td.col-time {
     white-space: nowrap;
 }
 
+.bmat-dashtable {
+  @media print {
+    color: black;
+    border-collapse: collapse;
+    border: 1px solid black;
+    tbody > tr {
+      padding: 0px;
+      border: 1px solid black;
+    }
+    thead > tr {
+      padding: 0px;
+      border: 2px solid black;
+    }
+    thead > tr > th {
+      text-align: left;
+      font-size: 14px;
+      padding: 10px;
+    }
+    tbody > tr > td {
+      padding: 10px;
+    }
+  }
+}
+
+
 .bmat-dashtable-filter-label {
     cursor: pointer;
     user-select: none;
@@ -397,6 +433,9 @@ td.col-time {
 .bmat-dashtable-filter {
     > div {
         padding: 5px;
+    }
+    @media print {
+      display: none;
     }
 }
 
@@ -436,9 +475,22 @@ td.col-time {
     cursor: pointer;
 }
 
-.button_bar {
+.print-info-bar {
+    @media print {
+      display: block;
+    }
+    display: none;
+    word-wrap: nowrap;
+    padding-left: 10px;
+    color: black;
+}
+
+.button-bar {
     padding-top: 10px;
     padding-left: 20px;
+    @media print {
+      display: none;
+    }
 }
 
 .bmat-dashtable-filter-label-container {

@@ -16,6 +16,9 @@ import { downloadCSV } from "bmat/dom";
 import { useQueryParams } from "bmat/hooks";
 import { timestampRFC3339 } from "bmat/time";
 import { addButton, removeButton } from "../components/common.tsx";
+import { ButtonStyled } from "../common.tsx";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 
 const logLevels = ["debug", "info", "warn", "error"];
 const logLimits = [25, 50, 75, 100, 125, 150, 175, 200];
@@ -173,8 +176,10 @@ const DashboardLog = () => {
             <div>
                 <EvaErrorMessage error={records.error} />
             </div>
-            <div className="button_bar">
-                <button
+            <div className="button-bar">
+                <ButtonStyled
+                    variant="outlined"
+                    title="Download CSV"
                     disabled={records.data === null}
                     onClick={() => {
                         const csvContent = generateDashTableRichCSV({
@@ -188,8 +193,17 @@ const DashboardLog = () => {
                         );
                     }}
                 >
-                    Export as CSV
-                </button>
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                </ButtonStyled>
+                <ButtonStyled
+                    title="Print"
+                    variant="outlined"
+                    onClick={() => {
+                        window.print();
+                    }}
+                >
+                    <PrintOutlinedIcon fontSize="small" />
+                </ButtonStyled>
             </div>
         </>
     );

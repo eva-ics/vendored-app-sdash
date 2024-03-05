@@ -17,7 +17,10 @@ import {
 import { useQueryParams } from "bmat/hooks";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import DateTimePickerSelect from "../components/date_time_picker.tsx";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import { addButton, removeButton } from "../components/common.tsx";
+import { ButtonStyled } from "../common.tsx";
 
 const DEFAULT_FRAME_SEC = 3600;
 const SVC_ID = "eva.aaa.accounting";
@@ -327,6 +330,9 @@ const DashboardEvents = () => {
 
     let header = (
         <>
+            <div className="print-info-bar">
+                {t_start.toRFC3339()} - {t_end.toRFC3339()}
+            </div>
             <div>
                 <EvaErrorMessage error={records.error} />
                 {records?.error?.code === -32113 ? (
@@ -343,8 +349,10 @@ const DashboardEvents = () => {
                     ""
                 )}{" "}
             </div>
-            <div className="button_bar">
-                <button
+            <div className="button-bar">
+                <ButtonStyled
+                    variant="outlined"
+                    title="Download CSV"
                     disabled={records.data === null}
                     onClick={() => {
                         const csvContent = generateDashTableRichCSV({
@@ -355,8 +363,17 @@ const DashboardEvents = () => {
                         downloadCSV(csvContent, "events.csv");
                     }}
                 >
-                    Export as CSV
-                </button>
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                </ButtonStyled>
+                <ButtonStyled
+                    title="Print"
+                    variant="outlined"
+                    onClick={() => {
+                        window.print();
+                    }}
+                >
+                    <PrintOutlinedIcon fontSize="small" />
+                </ButtonStyled>
             </div>
         </>
     );
