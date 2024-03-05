@@ -3,7 +3,29 @@ import { HeaderProps } from "../types";
 import { Eva } from "@eva-ics/webengine";
 import { get_engine } from "@eva-ics/webengine-react";
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Timestamp } from "bmat/time";
+
+const TimeInfo = () => {
+    const [time, setTime] = useState(new Date());
+    const timeWorker = useRef<any>(null);
+    useEffect(() => {
+        if (!timeWorker.current) {
+            timeWorker.current = setInterval(() => setTime(new Date()), 1000);
+        }
+        return () => {
+            clearInterval(timeWorker.current);
+            timeWorker.current = null;
+        };
+    }, []);
+    const eva = get_engine() as Eva;
+    return (
+        <div className="time-info">
+            ST: {new Timestamp(eva?.server_info?.time).toRFC3339()} CT:{" "}
+            {new Timestamp(time).toRFC3339()}
+        </div>
+    );
+};
 
 const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
@@ -32,6 +54,7 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                         <span className="current-user">[{eva?.server_info?.aci.u}]</span>
                     </div>
                 </div>
+                <TimeInfo />
             </div>
             <nav id="header">
                 <ul>

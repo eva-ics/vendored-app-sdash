@@ -2,7 +2,7 @@
 import ReactDOM from "react-dom/client";
 import SDash from "./sdash.tsx";
 import "./sass/main.scss";
-import { Eva } from "@eva-ics/webengine";
+import { Eva, IntervalKind } from "@eva-ics/webengine";
 import { set_engine, LoginProps, HMIApp } from "@eva-ics/webengine-react";
 import { DEFAULT_TITLE } from "./types/index.tsx";
 import React from "react";
@@ -13,17 +13,18 @@ set_engine(eva);
 document.title = DEFAULT_TITLE;
 
 const login_props: LoginProps = {
-  cache_login: true,
-  cache_auth: true,
-  register_globals: true
+    cache_login: true,
+    cache_auth: true,
+    register_globals: true,
 };
 
 eva.load_config().then((_config: any) => {
-  eva.state_updates = false;
-  ReactDOM.createRoot(document.getElementById("root")!).render(
-    <React.StrictMode>
-      <ToasterProvider />
-      <HMIApp Dashboard={SDash} login_props={login_props} />
-    </React.StrictMode>
-  );
+    eva.state_updates = false;
+    eva.set_interval(IntervalKind.Heartbeat, 1);
+    ReactDOM.createRoot(document.getElementById("root")!).render(
+        <React.StrictMode>
+            <ToasterProvider />
+            <HMIApp Dashboard={SDash} login_props={login_props} />
+        </React.StrictMode>
+    );
 });
