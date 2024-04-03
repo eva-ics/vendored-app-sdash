@@ -228,7 +228,7 @@ const DashboardEvents = () => {
             {
                 value: t.toRFC3339(true),
                 sort_value: t.toNumber(),
-                className: "col-fit",
+                className: "col-fit never-wrap",
             },
         ];
         pushRichColData({

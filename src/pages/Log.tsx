@@ -130,7 +130,11 @@ const DashboardLog = () => {
         let time;
         switch (time_kind) {
             case TimeKind.Server:
-                time = { value: record.dt, sort_value: record.t };
+                time = {
+                    value: record.dt,
+                    sort_value: record.t,
+                    className: "col-fit never-wrap",
+                };
                 break;
             case TimeKind.Local:
                 time = {
