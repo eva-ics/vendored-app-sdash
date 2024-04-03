@@ -140,6 +140,7 @@ const DashboardLog = () => {
                 time = {
                     value: timestampRFC3339(record.t, true),
                     sort_value: record.t,
+                    className: "col-fit never-wrap",
                 };
                 break;
         }

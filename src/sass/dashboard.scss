@@ -399,9 +399,6 @@ tr.log-record-error {
 td.col-fit {
   width: 1%;
   white-space: nowrap;
-  @media print {
-    white-space: normal;
-  }
 }
 
 td.col-uptime {
