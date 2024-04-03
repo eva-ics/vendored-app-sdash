@@ -548,4 +548,7 @@ td.col-time {
 
 .never-wrap {
   white-space: nowrap;
+  @media print {
+    white-space: nowrap;
+  }
 }
