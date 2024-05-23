@@ -1,14 +1,12 @@
 import { useEvaAPICall, get_engine } from "@eva-ics/webengine-react";
 import { Eva } from "@eva-ics/webengine";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { onSuccess, onEvaError } from "../common.tsx";
 import { DashTable, DashTableData, DashTableFilter } from "bmat/dashtable";
 import { useQueryParams } from "bmat/hooks";
 
 const DashboardServices = () => {
-    const eva = useMemo(() => {
-        return get_engine() as Eva;
-    }, []);
+    const eva = get_engine() as Eva;
 
     const [params, setParams] = useState({
         filter: null,
@@ -35,11 +33,14 @@ const DashboardServices = () => {
         [params.filter]
     );
 
-    const svc_list = useEvaAPICall({
-        method: loaded ? `bus::eva.core::svc.list` : undefined,
-        params: params,
-        update: 1,
-    });
+    const svc_list = useEvaAPICall(
+        {
+            method: loaded ? `bus::eva.core::svc.list` : undefined,
+            params,
+            update: 1,
+        },
+        [loaded, params]
+    );
 
     const restartService = (id: string) => {
         eva.call(`bus::eva.core::svc.restart`, { i: id })

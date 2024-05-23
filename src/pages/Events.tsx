@@ -136,11 +136,14 @@ const DashboardEvents = () => {
         }
     }, [filterParams]);
 
-    const records = useEvaAPICall({
-        method: loaded ? `x::${SVC_ID}::query` : undefined,
-        params: params,
-        update: updateInterval,
-    });
+    const records = useEvaAPICall(
+        {
+            method: loaded ? `x::${SVC_ID}::query` : undefined,
+            params: params,
+            update: updateInterval,
+        },
+        [loaded, params, updateInterval]
+    );
 
     const setLogFilterParams = (p: object) => {
         let np: any = { ...filterParams };

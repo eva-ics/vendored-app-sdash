@@ -84,11 +84,14 @@ const DashboardLog = () => {
         };
     }, [params]);
 
-    const records = useEvaAPICall({
-        method: loaded ? "bus::eva.core::log.get" : undefined,
-        params: callParams,
-        update: 1,
-    });
+    const records = useEvaAPICall(
+        {
+            method: loaded ? "bus::eva.core::log.get" : undefined,
+            params: callParams,
+            update: 1,
+        },
+        [loaded, callParams]
+    );
 
     const setLogParams = (p: object) => {
         let np: any = { ...params };
