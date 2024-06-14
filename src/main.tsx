@@ -2,11 +2,13 @@
 import ReactDOM from "react-dom/client";
 import SDash from "./sdash.tsx";
 import "./sass/main.scss";
-import { Eva, IntervalKind } from "@eva-ics/webengine";
+import { Eva, IntervalKind, disableTabFreeze } from "@eva-ics/webengine";
 import { set_engine, LoginProps, HMIApp } from "@eva-ics/webengine-react";
 import { DEFAULT_TITLE } from "./types/index.tsx";
 import React from "react";
 import ToasterProvider from "./components/ToastsProvider.tsx";
+
+disableTabFreeze();
 
 const eva = new Eva();
 set_engine(eva);
