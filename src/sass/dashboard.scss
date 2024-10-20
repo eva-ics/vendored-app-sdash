@@ -370,6 +370,14 @@ td {
     }
 }
 
+td.task-sched-other {
+    color: #999;
+}
+
+td.task-sched-realtime {
+    color: #55ee55;
+}
+
 tr.log-record-debug {
     color: #555;
 }

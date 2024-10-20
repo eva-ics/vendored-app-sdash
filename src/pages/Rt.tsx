@@ -1,5 +1,6 @@
 import { useEvaAPICall, EvaErrorMessage } from "@eva-ics/webengine-react";
 import { useState, useMemo } from "react";
+import { downloadCSV } from "bmat/dom";
 import {
     DashTable,
     DashTableFilter,
@@ -11,9 +12,14 @@ import {
     DashTableFilterFieldInput,
     pushRichColData,
     createRichFilter,
+    generateDashTableRichCSV,
 } from "bmat/dashtable";
+import { formatNumber } from "bmat/numbers";
 import { useQueryParams } from "bmat/hooks";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import { addButton, removeButton } from "../components/common.tsx";
+import { ButtonStyled } from "../common.tsx";
 
 const SVC_ID = "eva.svc.rtmon";
 
@@ -206,6 +212,8 @@ const DashboardRealtime = () => {
                 setParams: setTaskFilterParams,
                 cols,
                 addButton,
+                className:
+                    record.sched === "OTHER" ? "task-sched-other" : "task-sched-realtime",
             });
             pushRichColData({
                 colsData,
@@ -240,7 +248,11 @@ const DashboardRealtime = () => {
                 value: record.sched,
                 setParams: setTaskFilterParams,
                 cols,
-                className: "col-fit",
+                className:
+                    "col-fit " +
+                    (record.sched === "OTHER"
+                        ? "task-sched-other"
+                        : "task-sched-realtime"),
                 addButton,
             });
             pushRichColData({
@@ -264,7 +276,7 @@ const DashboardRealtime = () => {
                 className: "col-fit " + cpu_usage_class,
             });
             colsData.push({
-                value: (record.memory_usage / 1024 / 1024).toFixed(3),
+                value: formatNumber(Math.round(record.memory_usage / 1024 / 1024), "_"),
                 sort_value: record.memory_usage,
                 className: "col-fit",
             });
@@ -298,6 +310,31 @@ const DashboardRealtime = () => {
                     ""
                 )}{" "}
             </div>
+            <div className="button-bar">
+                <ButtonStyled
+                    variant="outlined"
+                    title="Download CSV"
+                    disabled={records.data === null}
+                    onClick={() => {
+                        const csvContent = generateDashTableRichCSV({
+                            data: records.data,
+                            cols,
+                        });
+                        downloadCSV(csvContent, "rt.csv");
+                    }}
+                >
+                    <FileDownloadOutlinedIcon fontSize="small" />
+                </ButtonStyled>
+                <ButtonStyled
+                    title="Print"
+                    variant="outlined"
+                    onClick={() => {
+                        window.print();
+                    }}
+                >
+                    <PrintOutlinedIcon fontSize="small" />
+                </ButtonStyled>
+            </div>
         </>
     );
     return (
@@ -308,7 +345,7 @@ const DashboardRealtime = () => {
                         <DashTable
                             id="rt_tasks"
                             header={header}
-                            title="Tasks"
+                            title="Tasks and real-time settings"
                             cols={colsToShow}
                             filter={filter}
                             data={data}
