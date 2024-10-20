@@ -378,6 +378,14 @@ tr.log-record-warn {
     color: #eeee55;
 }
 
+td.cpu-usage-warn {
+    color: #eeee55;
+}
+
+td.cpu-usage-crit {
+    color: #ee5555;
+}
+
 tr.log-record-error {
     color: #ee5555;
     font-weight: bold;

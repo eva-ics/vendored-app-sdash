@@ -8,6 +8,7 @@ import DashboardCloud from "../pages/Cloud.tsx";
 import DashboardServices from "../pages/Services.tsx";
 import DashboardLog from "../pages/Log.tsx";
 import DashboardEvents from "../pages/Events.tsx";
+import DashboardRealtime from "../pages/Rt.tsx";
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
@@ -37,6 +38,10 @@ const Layout = ({ logout }: LayoutProps) => {
             content = <DashboardEvents />;
             current_page = "Events";
             break;
+        case "rt":
+            content = <DashboardRealtime />;
+            current_page = "Realtime";
+            break
         case "navigate":
             content = <DashboardOverview />;
             current_page = "Navigate";
@@ -53,6 +58,7 @@ const Layout = ({ logout }: LayoutProps) => {
     const nav = [
         { value: "Overview", to: "?" },
         { value: "Services", to: "?d=services" },
+        { value: "Realtime", to: "?d=rt" },
         { value: "Cloud", to: "?d=cloud" },
         { value: "Events", to: "?d=events" },
         { value: "Log", to: "?d=log" },
