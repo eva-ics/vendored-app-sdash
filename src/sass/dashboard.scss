@@ -1,3 +1,6 @@
+@use "mixin" as *;
+@use "base" as *;
+
 .print-hidden {
     @media print {
         display: none;

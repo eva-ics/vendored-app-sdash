@@ -1,15 +1,17 @@
+@use "base" as *;
+
 .MuiSelect-select.MuiSelect-outlined.MuiInputBase-input.MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
-  color: $main-text-color;
-  background-color: $body-bg-color;
-  padding: 11px 30px;
-  outline: 1px solid $border-color;
+    color: $main-text-color;
+    background-color: $body-bg-color;
+    padding: 11px 30px;
+    outline: 1px solid $border-color;
 }
 
 .MuiList-root.MuiList-padding.MuiMenu-list.css-6hp17o-MuiList-root-MuiMenu-list {
-  color: $main-text-color;
-  background-color: $body-bg-color;
+    color: $main-text-color;
+    background-color: $body-bg-color;
 }
 
 .MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.MuiSelect-icon.MuiSelect-iconOutlined.css-hfutr2-MuiSvgIcon-root-MuiSelect-icon {
-  fill: $main-text-color;
+    fill: $main-text-color;
 }

@@ -3,6 +3,9 @@
 //     margin-bottom: 20px;
 // }
 
+@use "mixin" as *;
+@use "base" as *;
+
 .side-menu-wrapper {
     position: fixed;
     top: 0;
