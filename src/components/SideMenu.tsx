@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { NavElement, SideMenuProps } from "../types";
 import { AiOutlineClose } from "react-icons/ai";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuProps) => {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const navigate = useNavigate();
+    const location = useLocation();
     const sidebarRef = useRef<HTMLDivElement>(null);
+    const submenuRef = useRef<HTMLUListElement>(null);
 
     const toggleSubMenu = (menuItem: string) => {
         setOpenSubMenu(openSubMenu === menuItem ? null : menuItem);
@@ -27,21 +29,27 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
         };
     }, [toggleMenu]);
 
+    const handleBlur = () => {
+        setTimeout(() => {
+            if (
+                submenuRef.current &&
+                !submenuRef.current.contains(document.activeElement)
+            ) {
+                setOpenSubMenu(null);
+            }
+        }, 0);
+    };
+
     const handleNavClick = (
-        event:
-            | React.MouseEvent<HTMLAnchorElement | HTMLLIElement>
-            | React.KeyboardEvent<HTMLAnchorElement | HTMLLIElement>,
+        event: React.MouseEvent<HTMLLIElement> | React.KeyboardEvent<HTMLLIElement>,
         v: NavElement
     ) => {
         event.preventDefault();
-        const isShiftKey = (
-            event as React.KeyboardEvent<HTMLAnchorElement | HTMLLIElement>
-        ).shiftKey;
+        const isShiftKey = (event as React.KeyboardEvent<HTMLLIElement>).shiftKey;
 
         if (
             event.type === "click" ||
-            (event as React.KeyboardEvent<HTMLAnchorElement | HTMLLIElement>).key ===
-                "Enter"
+            (event as React.KeyboardEvent<HTMLLIElement>).key === "Enter"
         ) {
             if (v.submenus && v.submenus.length > 0) {
                 toggleSubMenu(v.value);
@@ -69,20 +77,19 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
         event: React.MouseEvent<HTMLLIElement | HTMLAnchorElement>,
         to: string
     ) => {
+        event.preventDefault();
         const isShiftKey = event.shiftKey;
 
         if (to === "logout") {
             logout();
         } else if (to.startsWith("?")) {
             if (isShiftKey) {
-                event.preventDefault();
                 setTimeout(() => window.open(to, "_blank"), 0);
             } else {
                 navigate(to);
             }
             toggleMenu();
         } else if (to.startsWith("/")) {
-            event.preventDefault();
             if (isShiftKey) {
                 setTimeout(() => window.open(to, "_blank"), 0);
             } else {
@@ -90,6 +97,7 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
             }
             toggleMenu();
         }
+        setOpenSubMenu(null);
     };
 
     const handleSubKeyDown = (
@@ -124,15 +132,25 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                             <nav id="sidebar">
                                 <ul className="side-menu-list">
                                     {nav.map((v, idx) => {
-                                        const isCurrent = current_page === v.value;
-                                        const containerClass = isCurrent
-                                            ? "side-menu-current"
-                                            : "side-menu-item";
+                                        const isCurrent =
+                                            current_page === v.value ||
+                                            current_page === v.to ||
+                                            (v.submenus &&
+                                                v.submenus.some(
+                                                    (submenu) =>
+                                                        current_page === submenu.value ||
+                                                        current_page === submenu.to
+                                                ));
 
                                         return (
                                             <li
                                                 key={idx}
-                                                onClick={() => toggleSubMenu(v.value)}
+                                                className="side-menu-li"
+                                                onClick={(event) => {
+                                                    if (!v.to) event.preventDefault();
+                                                    handleNavClick(event, v);
+                                                    toggleSubMenu(v.value);
+                                                }}
                                                 onKeyDown={(event) => {
                                                     if (
                                                         event.key === "Enter" ||
@@ -141,57 +159,24 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                                                         handleNavClick(event, v);
                                                     }
                                                 }}
+                                                onBlur={handleBlur}
                                             >
-                                                {v.to ? (
-                                                    <NavLink
-                                                        to={v.to}
-                                                        onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            handleNavClick(
-                                                                event as React.MouseEvent<HTMLAnchorElement>,
-                                                                v
-                                                            );
-                                                        }}
-                                                        onKeyDown={(event) => {
-                                                            if (
-                                                                event.key === "Enter" ||
-                                                                event.key === " "
-                                                            ) {
-                                                                handleNavClick(
-                                                                    event as React.KeyboardEvent<HTMLAnchorElement>,
-                                                                    v
-                                                                );
-                                                            }
-                                                        }}
-                                                    >
-                                                        <div className={containerClass}>
-                                                            {v.value}
-                                                        </div>
-                                                    </NavLink>
-                                                ) : (
-                                                    <NavLink
-                                                        key={idx}
-                                                        to="#"
-                                                        onClick={(event) =>
-                                                            event.preventDefault()
-                                                        }
-                                                    >
-                                                        <div
-                                                            className={containerClass}
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() =>
-                                                                toggleSubMenu(v.value)
-                                                            }
-                                                        >
-                                                            {v.value}
-                                                        </div>
-                                                    </NavLink>
-                                                )}
+                                                <a
+                                                    href={v.to || "#"}
+                                                    className={
+                                                        isCurrent
+                                                            ? "side-menu-current"
+                                                            : "side-menu-item"
+                                                    }
+                                                >
+                                                    {v.value}
+                                                </a>
 
                                                 {openSubMenu === v.value &&
                                                     v.submenus &&
                                                     v.submenus.length > 0 && (
                                                         <ul
+                                                            ref={submenuRef}
                                                             className="subitem-list"
                                                             onClick={(event) =>
                                                                 event.stopPropagation()
@@ -201,6 +186,12 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                                                                 (subItem, i) => (
                                                                     <li
                                                                         key={i}
+                                                                        className={
+                                                                            location.search ===
+                                                                            subItem.to
+                                                                                ? "current"
+                                                                                : ""
+                                                                        }
                                                                         onClick={(
                                                                             event
                                                                         ) => {
@@ -219,24 +210,18 @@ const SideMenu = ({ nav, isOpen, toggleMenu, logout, current_page }: SideMenuPro
                                                                             )
                                                                         }
                                                                     >
-                                                                        <NavLink
-                                                                            className={
-                                                                                current_page ===
-                                                                                subItem.value
-                                                                                    ? "sub-menu-current"
-                                                                                    : ""
-                                                                            }
-                                                                            to={
+                                                                        <a
+                                                                            href={
                                                                                 subItem.to ===
                                                                                 "logout"
-                                                                                    ? "?"
+                                                                                    ? "#"
                                                                                     : subItem.to
                                                                             }
                                                                         >
                                                                             {
                                                                                 subItem.value
                                                                             }
-                                                                        </NavLink>
+                                                                        </a>
                                                                     </li>
                                                                 )
                                                             )}

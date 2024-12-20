@@ -2,7 +2,7 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { HeaderProps, NavElement } from "../types";
 import { Eva } from "@eva-ics/webengine";
 import { get_engine } from "@eva-ics/webengine-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Timestamp } from "bmat/time";
 
@@ -30,8 +30,21 @@ const TimeInfo = () => {
 const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const navigate = useNavigate();
+    const submenuRef = useRef<HTMLUListElement>(null);
+    const location = useLocation();
 
     const eva = get_engine() as Eva;
+
+    const handleBlur = () => {
+        setTimeout(() => {
+            if (
+                submenuRef.current &&
+                !submenuRef.current.contains(document.activeElement)
+            ) {
+                setOpenSubMenu(null);
+            }
+        }, 0);
+    };
 
     const handleNavClick = (
         event: React.MouseEvent<HTMLLIElement> | React.KeyboardEvent<HTMLLIElement>,
@@ -68,27 +81,25 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
         event: React.MouseEvent<HTMLLIElement | HTMLAnchorElement>,
         to: string
     ) => {
+        event.preventDefault();
         const isShiftKey = event.shiftKey;
 
         if (to === "logout") {
             logout();
         } else if (to.startsWith("?")) {
             if (isShiftKey) {
-                event.preventDefault();
                 setTimeout(() => window.open(to, "_blank"), 0);
             } else {
                 navigate(to);
-                setOpenSubMenu(null);
             }
         } else if (to.startsWith("/")) {
-            event.preventDefault();
             if (isShiftKey) {
                 setTimeout(() => window.open(to, "_blank"), 0);
             } else {
                 document.location = to;
-                setOpenSubMenu(null);
             }
         }
+        setOpenSubMenu(null);
     };
 
     const handleSubKeyDown = (
@@ -97,7 +108,6 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
     ) => {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-
             handleSubClick(
                 {
                     currentTarget: event.currentTarget,
@@ -129,22 +139,24 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
             <nav id="header">
                 <ul>
                     {nav.map((v, idx) => {
-                        const isCurrent = current_page === v.value;
-
-                        const navLinkClass = isCurrent
-                            ? "nav-link nav-link-current"
-                            : "nav-link";
-
-                        const containerClass = isCurrent
-                            ? "nav-link-container nav-link-container-current"
-                            : "nav-link-container";
+                        const isCurrent =
+                            current_page === v.value ||
+                            current_page === v.to ||
+                            (v.submenus &&
+                                v.submenus.some(
+                                    (submenu) =>
+                                        current_page === submenu.value ||
+                                        current_page === submenu.to
+                                ));
 
                         return (
                             <li
-                                className={navLinkClass}
+                                className={
+                                    isCurrent ? "nav-link nav-link-current" : "nav-link"
+                                }
                                 key={idx}
                                 onClick={(event) => {
-                                    event.stopPropagation();
+                                    if (!v.to) event.preventDefault();
                                     handleNavClick(event, v);
                                 }}
                                 onKeyDown={(event) => {
@@ -152,29 +164,31 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                                         handleNavClick(event, v);
                                     }
                                 }}
+                                onBlur={handleBlur}
                             >
-                                {v.to ? (
-                                    <NavLink key={idx} to={v.to}>
-                                        <div className={containerClass}>{v.value}</div>
-                                    </NavLink>
-                                ) : (
-                                    <NavLink
-                                        key={idx}
-                                        to="#"
-                                        onClick={(event) => event.preventDefault()}
-                                    >
-                                        <div className={containerClass}>{v.value}</div>
-                                    </NavLink>
-                                )}
+                                <a
+                                    href={v.to || "#"}
+                                    className={
+                                        isCurrent
+                                            ? "nav-link-container nav-link-container-current"
+                                            : "nav-link-container"
+                                    }
+                                >
+                                    {v.value}
+                                </a>
 
                                 {openSubMenu == v.value &&
                                     v.submenus &&
                                     v.submenus.length > 0 && (
-                                        <ul className="submenu">
+                                        <ul className="submenu" ref={submenuRef}>
                                             {v.submenus.map((submenuItem, subIdx) => (
                                                 <li
                                                     key={subIdx}
-                                                    className="submenu-item"
+                                                    className={
+                                                        location.search === submenuItem.to
+                                                            ? "submenu-item-current"
+                                                            : "submenu-item"
+                                                    }
                                                     onClick={(event) => {
                                                         event.stopPropagation();
                                                         handleSubClick(
@@ -182,22 +196,22 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                                                             submenuItem.to
                                                         );
                                                     }}
-                                                    onKeyDown={(event) =>
+                                                    onKeyDown={(event) => {
                                                         handleSubKeyDown(
                                                             event as React.KeyboardEvent<HTMLLIElement>,
                                                             submenuItem.to
-                                                        )
-                                                    }
+                                                        );
+                                                    }}
                                                 >
-                                                    <NavLink
-                                                        to={
+                                                    <a
+                                                        href={
                                                             submenuItem.to === "logout"
-                                                                ? "?"
+                                                                ? "#"
                                                                 : submenuItem.to
                                                         }
                                                     >
                                                         {submenuItem.value}
-                                                    </NavLink>
+                                                    </a>
                                                 </li>
                                             ))}
                                         </ul>
