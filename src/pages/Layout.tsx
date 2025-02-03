@@ -1,22 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import { LayoutProps } from "../types";
 import { useSearchParams } from "react-router-dom";
+import { useXTerm } from "react-xtermjs";
 import DashboardOverview from "../pages/Overview.tsx";
 import DashboardCloud from "../pages/Cloud.tsx";
 import DashboardServices from "../pages/Services.tsx";
 import DashboardLog from "../pages/Log.tsx";
 import DashboardEvents from "../pages/Events.tsx";
 import DashboardRealtime from "../pages/Rt.tsx";
+import { get_engine } from "@eva-ics/webengine-react";
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [searchParams, _] = useSearchParams();
 
+    const [terminalVisible, setTerminalVisibile] = useState(false);
+
     const toggleMenu = () => {
         setIsOpenMenu(!isOpenMenu);
     };
+
+    useEffect(() => {
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "`" && e.altKey) {
+                e.preventDefault();
+                setTerminalVisibile(true);
+            }
+        });
+    }, []);
 
     let content;
     let current_page;
@@ -41,7 +54,7 @@ const Layout = ({ logout }: LayoutProps) => {
         case "rt":
             content = <DashboardRealtime />;
             current_page = "Realtime";
-            break
+            break;
         case "navigate":
             content = <DashboardOverview />;
             current_page = "Navigate";
@@ -73,6 +86,12 @@ const Layout = ({ logout }: LayoutProps) => {
         },
     ];
 
+    if (terminalVisible) {
+        document.body.style.overflow = "hidden";
+    } else {
+        document.body.style.overflow = "auto";
+    }
+
     return (
         <div className="root-container">
             <Header
@@ -88,8 +107,117 @@ const Layout = ({ logout }: LayoutProps) => {
                 logout={logout}
                 current_page={current_page}
             />
+            {terminalVisible ? (
+                <Terminal visible={terminalVisible} setVisible={setTerminalVisibile} />
+            ) : null}
             {content}
         </div>
+    );
+};
+
+const FILEMGR_SVC = "eva.filemgr.main";
+
+const TERM_DEFAULT_COLS = 80;
+const TERM_DEFAULT_ROWS = 24;
+
+const terminal_parameters = () => {
+    return {
+        options: {
+            cols: TERM_DEFAULT_COLS,
+            rows: TERM_DEFAULT_ROWS,
+            fontSize: 14,
+            cursorStyle: "block",
+        },
+        listeners: {},
+    };
+};
+
+const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
+    const term_params = useMemo(() => {
+        const window_width = window.innerWidth;
+        const window_height = window.innerHeight;
+        const cols = Math.floor(window_width / 10);
+        const rows = Math.floor(window_height / 20);
+        const p = terminal_parameters();
+        p.options.cols = cols;
+        p.options.rows = rows;
+        (p.listeners as any).onKey = (event: {
+            key: string;
+            domEvent: KeyboardEvent;
+        }) => {
+            if (event.domEvent.key == "`" && event.domEvent.altKey) {
+                setVisible(false);
+            }
+        };
+        console.log(p);
+        return p;
+    }, []);
+
+    useEffect(() => {
+        const engine = get_engine()!;
+        engine.call(`bus::${FILEMGR_SVC}::terminal.restart`, {
+            dimensions: [term_params.options.cols, term_params.options.rows],
+        });
+        return () => {
+            engine.call(`bus::${FILEMGR_SVC}::terminal.restart`, {
+                dimensions: [term_params.options.cols, term_params.options.rows],
+            });
+        };
+    }, []);
+
+    const { instance, ref } = useXTerm(term_params as any);
+    const input = useRef("");
+    const action_in_progress = useRef(false);
+
+    const stdio_worker = () => {
+        const engine = get_engine()!;
+        if (input.current.length > 0) {
+            engine.call(`bus::${FILEMGR_SVC}::terminal.send_input`, {
+                input: input.current,
+            });
+            input.current = "";
+        }
+        if (action_in_progress.current) {
+            return;
+        }
+        action_in_progress.current = true;
+        engine
+            .call(`bus::${FILEMGR_SVC}::terminal.take_output`, {})
+            .then((data) => {
+                if (Array.isArray(data?.output)) {
+                    data.output.forEach((v: any) => {
+                        let stdout = v.stdout;
+                        if (stdout) {
+                            instance?.write(stdout);
+                        }
+                        let stderr = v.stderr;
+                        if (stderr) {
+                            instance?.write(stderr);
+                        }
+                    });
+                }
+            })
+            .finally(() => {
+                action_in_progress.current = false;
+            });
+    };
+
+    useEffect(() => {
+        const w = setInterval(stdio_worker, 100);
+        return () => clearInterval(w);
+    }, [instance]);
+
+    instance?.onData((data: string) => {
+        input.current += data;
+    });
+
+    return (
+        <>
+            <div className="web-terminal-dim-content"></div>
+            <div className="web-terminal">
+                <div ref={ref}></div>
+            </div>
+        </>
     );
 };
 
