@@ -107,9 +107,7 @@ const Layout = ({ logout }: LayoutProps) => {
                 logout={logout}
                 current_page={current_page}
             />
-            {terminalVisible ? (
-                <Terminal visible={terminalVisible} setVisible={setTerminalVisibile} />
-            ) : null}
+            {terminalVisible ? <Terminal setVisible={setTerminalVisibile} /> : null}
             {content}
         </div>
     );
@@ -133,6 +131,8 @@ const terminal_parameters = () => {
 };
 
 const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
+    const terminalId = useRef<string | null>(null);
+
     const term_params = useMemo(() => {
         const window_width = window.innerWidth;
         const window_height = window.innerHeight;
@@ -149,19 +149,24 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
                 setVisible(false);
             }
         };
-        console.log(p);
         return p;
     }, []);
 
     useEffect(() => {
         const engine = get_engine()!;
-        engine.call(`bus::${FILEMGR_SVC}::terminal.restart`, {
-            dimensions: [term_params.options.cols, term_params.options.rows],
-        });
-        return () => {
-            engine.call(`bus::${FILEMGR_SVC}::terminal.restart`, {
+        engine
+            .call(`bus::${FILEMGR_SVC}::terminal.create`, {
                 dimensions: [term_params.options.cols, term_params.options.rows],
+            })
+            .then((res: any) => {
+                terminalId.current = res.i;
             });
+        return () => {
+            if (terminalId) {
+                engine.call(`bus::${FILEMGR_SVC}::terminal.kill`, {
+                    i: terminalId.current,
+                });
+            }
         };
     }, []);
 
@@ -170,19 +175,19 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
     const action_in_progress = useRef(false);
 
     const stdio_worker = () => {
-        const engine = get_engine()!;
-        if (input.current.length > 0) {
-            engine.call(`bus::${FILEMGR_SVC}::terminal.send_input`, {
-                input: input.current,
-            });
-            input.current = "";
+        if (!terminalId.current) {
+            return;
         }
+        const engine = get_engine()!;
         if (action_in_progress.current) {
             return;
         }
         action_in_progress.current = true;
         engine
-            .call(`bus::${FILEMGR_SVC}::terminal.take_output`, {})
+            .call(`bus::${FILEMGR_SVC}::terminal.sync`, {
+                i: terminalId.current,
+                input: input.current,
+            })
             .then((data) => {
                 if (Array.isArray(data?.output)) {
                     data.output.forEach((v: any) => {
@@ -200,12 +205,13 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             .finally(() => {
                 action_in_progress.current = false;
             });
+        input.current = "";
     };
 
     useEffect(() => {
         const w = setInterval(stdio_worker, 100);
         return () => clearInterval(w);
-    }, [instance]);
+    }, [instance, terminalId]);
 
     instance?.onData((data: string) => {
         input.current += data;
