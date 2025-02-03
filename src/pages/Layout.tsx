@@ -136,8 +136,8 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
     const term_params = useMemo(() => {
         const window_width = window.innerWidth;
         const window_height = window.innerHeight;
-        const cols = Math.floor(window_width / 10);
-        const rows = Math.floor(window_height / 20);
+        const cols = Math.floor(window_width / 8) - 1;
+        const rows = Math.floor(window_height / 20) - 1;
         const p = terminal_parameters();
         p.options.cols = cols;
         p.options.rows = rows;
