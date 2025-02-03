@@ -11,6 +11,7 @@ import DashboardLog from "../pages/Log.tsx";
 import DashboardEvents from "../pages/Events.tsx";
 import DashboardRealtime from "../pages/Rt.tsx";
 import { get_engine } from "@eva-ics/webengine-react";
+import { onEvaError } from "../common";
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
@@ -160,9 +161,12 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             })
             .then((res: any) => {
                 terminalId.current = res.i;
+            }).catch((e) => {
+                onEvaError(e);
+                setVisible(false);
             });
         return () => {
-            if (terminalId) {
+            if (terminalId.current) {
                 engine.call(`bus::${FILEMGR_SVC}::terminal.kill`, {
                     i: terminalId.current,
                 });
@@ -204,6 +208,10 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             })
             .finally(() => {
                 action_in_progress.current = false;
+            })
+            .catch((e) => {
+                onEvaError(e);
+                setVisible(false);
             });
         input.current = "";
     };
