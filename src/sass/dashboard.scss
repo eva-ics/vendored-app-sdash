@@ -603,4 +603,7 @@ td.col-time {
   margin-left: 5px;
   display: inline-block;
   cursor: pointer;
+  @media print {
+    display: none;
+  }
 }

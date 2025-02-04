@@ -142,6 +142,7 @@ const Header = ({
                     <img
                         src="terminal.svg"
                         className="terminal-button"
+                        title="Open terminal console"
                         onClick={() => setTerminalVisibile(true)}
                     />
                 </div>
