@@ -18,6 +18,7 @@ export interface HeaderProps {
     logout: FunctionLogout;
     current_page: string;
     nav: Array<NavElement>;
+    setTerminalVisibile: (v: boolean) => void;
 }
 
 type SubmenuItem = {

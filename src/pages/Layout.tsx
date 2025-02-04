@@ -100,6 +100,7 @@ const Layout = ({ logout }: LayoutProps) => {
                 nav={nav}
                 logout={logout}
                 current_page={current_page}
+                setTerminalVisibile={setTerminalVisibile}
             />
             <SideMenu
                 nav={nav}

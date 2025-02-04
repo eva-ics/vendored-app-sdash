@@ -27,7 +27,13 @@ const TimeInfo = () => {
     );
 };
 
-const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
+const Header = ({
+    toggleMenu,
+    nav,
+    logout,
+    current_page,
+    setTerminalVisibile,
+}: HeaderProps) => {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const navigate = useNavigate();
     const submenuRef = useRef<HTMLUListElement>(null);
@@ -133,6 +139,11 @@ const Header = ({ toggleMenu, nav, logout, current_page }: HeaderProps) => {
                         EVA ICS System dashboard. Node: {eva.system_name()}{" "}
                         <span className="current-user">[{eva?.server_info?.aci.u}]</span>
                     </div>
+                    <img
+                        src="terminal.svg"
+                        className="terminal-button"
+                        onClick={() => setTerminalVisibile(true)}
+                    />
                 </div>
                 <TimeInfo />
             </div>
