@@ -11,7 +11,7 @@ import DashboardLog from "../pages/Log.tsx";
 import DashboardEvents from "../pages/Events.tsx";
 import DashboardRealtime from "../pages/Rt.tsx";
 import { get_engine } from "@eva-ics/webengine-react";
-import { onEvaError } from "../common";
+import { onEvaError, onError } from "../common";
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
@@ -161,7 +161,8 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             })
             .then((res: any) => {
                 terminalId.current = res.i;
-            }).catch((e) => {
+            })
+            .catch((e) => {
                 onEvaError(e);
                 setVisible(false);
             });
@@ -202,6 +203,13 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
                         let stderr = v.stderr;
                         if (stderr) {
                             instance?.write(stderr);
+                        }
+                        let code = v.terminated;
+                        if (code !== undefined) {
+                            setVisible(false);
+                            if (code !== 0 && code !== null) {
+                                onError(`Terminal session terminated with code ${code}`);
+                            }
                         }
                     });
                 }
