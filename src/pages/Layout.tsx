@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import { LayoutProps } from "../types";
@@ -132,14 +132,17 @@ const terminal_parameters = () => {
     };
 };
 
+const terminalDimensions = (): [number, number] => {
+    const cols = Math.floor(window.innerWidth / 8) - 1;
+    const rows = Math.floor(window.innerHeight / 20) - 1;
+    return [cols, rows];
+};
+
 const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
     const terminalId = useRef<string | null>(null);
 
     const term_params = useMemo(() => {
-        const window_width = window.innerWidth;
-        const window_height = window.innerHeight;
-        const cols = Math.floor(window_width / 8) - 1;
-        const rows = Math.floor(window_height / 20) - 1;
+        const [cols, rows] = terminalDimensions();
         const p = terminal_parameters();
         p.options.cols = cols;
         p.options.rows = rows;
@@ -153,6 +156,8 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
         };
         return p;
     }, []);
+
+    const { instance, ref } = useXTerm(term_params as any);
 
     useEffect(() => {
         const engine = get_engine()!;
@@ -176,7 +181,31 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
         };
     }, []);
 
-    const { instance, ref } = useXTerm(term_params as any);
+    useLayoutEffect(() => {
+        const updateSize = () => {
+            const [cols, rows] = terminalDimensions();
+            const engine = get_engine()!;
+            if (!terminalId.current) {
+                instance?.resize(cols, rows);
+                return;
+            }
+            engine
+                .call(`bus::${FILEMGR_SVC}::terminal.resize`, {
+                    i: terminalId.current,
+                    dimensions: [cols, rows],
+                })
+                .then(() => {
+                    instance?.resize(cols, rows);
+                })
+                .catch((e) => {
+                    onEvaError(e);
+                });
+        };
+        window.addEventListener("resize", updateSize);
+        updateSize();
+        return () => window.removeEventListener("resize", updateSize);
+    }, [instance]);
+
     const input = useRef("");
     const action_in_progress = useRef(false);
 
