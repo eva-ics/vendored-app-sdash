@@ -12,7 +12,8 @@
 .header-info {
     display: inline-block;
     position: absolute;
-    padding-left: 10px;
+    padding-right: 5px;
+
     @include media(desktop) {
         position: relative;
         top: 0px;
