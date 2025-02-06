@@ -132,20 +132,58 @@ const terminal_parameters = () => {
     };
 };
 
-const terminalDimensions = (): [number, number] => {
-    const cols = Math.floor(window.innerWidth / 8) - 1;
-    const rows = Math.floor(window.innerHeight / 20) - 1;
-    return [cols, rows];
+
+const terminalDimensions = (): [number, number, number] => {
+    let fontSize: number;
+    const screenWidth = window.innerWidth;
+
+   
+    let extraWidthCoefficient = 0.18; 
+
+    if (screenWidth >= 400) extraWidthCoefficient = 0.18;
+    if (screenWidth >= 500) extraWidthCoefficient = 0.20;
+    if (screenWidth >= 600) extraWidthCoefficient = 0.22;
+    if (screenWidth >= 700) extraWidthCoefficient = 0.23;
+    if (screenWidth >= 800) extraWidthCoefficient = 0.24;
+    if (screenWidth >= 900) extraWidthCoefficient = 0.25;
+    if (screenWidth >= 1000) extraWidthCoefficient = 0.27;
+ 
+
+    const extraWidth = screenWidth * extraWidthCoefficient;
+
+    if (screenWidth <= 480) { 
+        fontSize = 10;
+    } else if (screenWidth <= 768) { 
+        fontSize = 12;
+    } else if (screenWidth <= 1245){
+        fontSize = 14;
+    } else { 
+        fontSize = 16;
+    }
+
+    const charWidth = fontSize * 0.8;
+    const charHeight = fontSize * 1.5;
+
+    const cols = Math.floor((screenWidth + extraWidth) / charWidth);
+    const rows = Math.floor(window.innerHeight / charHeight);
+
+    return [cols, rows, fontSize];
 };
+
+
 
 const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
     const terminalId = useRef<string | null>(null);
 
     const term_params = useMemo(() => {
-        const [cols, rows] = terminalDimensions();
+
+        const [cols, rows, fontSize] = terminalDimensions();
+
         const p = terminal_parameters();
         p.options.cols = cols;
         p.options.rows = rows;
+        p.options.fontSize = fontSize;
+
         (p.listeners as any).onKey = (event: {
             key: string;
             domEvent: KeyboardEvent;
@@ -267,7 +305,7 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
         <>
             <div className="web-terminal-dim-content"></div>
             <div className="web-terminal">
-                <div ref={ref}></div>
+                <div ref={ref}  style={{ width:"100%", height:"100%", overflow:"hidden"}}></div>
             </div>
         </>
     );
