@@ -615,3 +615,15 @@ td.col-time {
     display: none;
   }
 }
+
+#tdcalc {
+  font-family: operator mono,SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
+  line-height: 17px;
+  letter-spacing: 0.02;
+  font-size: 14px;
+  visibility: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -99999;
+}

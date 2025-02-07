@@ -133,8 +133,26 @@ const terminal_parameters = () => {
 };
 
 const terminalDimensions = (): [number, number] => {
-    const cols = Math.floor(window.innerWidth / 8) - 1;
-    const rows = Math.floor(window.innerHeight / 20) - 1;
+    let el = document.getElementById("tdcalc");
+    if (!el) {
+        el = document.createElement("span");
+        el.id = "tdcalc";
+        el.style.visibility = "hidden";
+        let s = "";
+        for (let i = 0; i < 36; i++) {
+            s += "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            if (i < 35) {
+                s += "<br />";
+            }
+        }
+        el.innerHTML = s;
+
+        document.body.appendChild(el);
+    }
+    let char_width = el.offsetWidth / 36;
+    let char_height = el.offsetHeight / 36;
+    let cols = Math.floor(((window.innerWidth / char_width) * 95) / 100 - 1);
+    let rows = Math.floor(((window.innerHeight / char_height) * 90) / 100 - 1);
     return [cols, rows];
 };
 
