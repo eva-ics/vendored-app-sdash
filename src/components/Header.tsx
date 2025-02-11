@@ -1,10 +1,11 @@
 import { GiHamburgerMenu } from "react-icons/gi";
-import { HeaderProps, NavElement } from "../types";
+import { NavElement } from "../types";
 import { Eva } from "@eva-ics/webengine";
-import { get_engine } from "@eva-ics/webengine-react";
+import { get_engine, FunctionLogout } from "@eva-ics/webengine-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Timestamp } from "bmat/time";
+import { RemoteNode } from "../pages/Cloud";
 
 const TimeInfo = () => {
     const [time, setTime] = useState(new Date());
@@ -26,14 +27,21 @@ const TimeInfo = () => {
         </div>
     );
 };
+export interface HeaderProps {}
 
 const Header = ({
     toggleMenu,
     nav,
     logout,
     current_page,
-    setTerminalVisibile,
-}: HeaderProps) => {
+    openTerminal,
+}: {
+    toggleMenu: () => void;
+    logout: FunctionLogout;
+    current_page: string;
+    nav: Array<NavElement>;
+    openTerminal: (n?: RemoteNode) => void;
+}) => {
     const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
     const navigate = useNavigate();
     const submenuRef = useRef<HTMLUListElement>(null);
@@ -143,7 +151,7 @@ const Header = ({
                         src="terminal.svg"
                         className="terminal-button"
                         title="Open terminal console"
-                        onClick={() => setTerminalVisibile(true)}
+                        onClick={() => openTerminal()}
                     />
                 </div>
                 <TimeInfo />
