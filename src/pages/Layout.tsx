@@ -1,4 +1,11 @@
-import { useState, useEffect, useLayoutEffect, useRef, useMemo } from "react";
+import {
+    useState,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useMemo,
+    useCallback,
+} from "react";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
 import { LayoutProps } from "../types";
@@ -12,12 +19,21 @@ import DashboardEvents from "../pages/Events.tsx";
 import DashboardRealtime from "../pages/Rt.tsx";
 import { get_engine } from "@eva-ics/webengine-react";
 import { onEvaError, onError } from "../common";
+import { RemoteNode } from "./Cloud";
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
     const [searchParams, _] = useSearchParams();
 
     const [terminalVisible, setTerminalVisibile] = useState(false);
+    const [terminalRemoteNode, setTerminalRemoteNode] = useState<RemoteNode | undefined>(
+        undefined
+    );
+
+    const openTerminal = (n?: RemoteNode) => {
+        setTerminalRemoteNode(n);
+        setTerminalVisibile(true);
+    };
 
     const toggleMenu = () => {
         setIsOpenMenu(!isOpenMenu);
@@ -27,7 +43,7 @@ const Layout = ({ logout }: LayoutProps) => {
         document.addEventListener("keydown", (e) => {
             if (e.key === "`" && e.altKey) {
                 e.preventDefault();
-                setTerminalVisibile(true);
+                openTerminal(undefined);
             }
         });
     }, []);
@@ -37,7 +53,7 @@ const Layout = ({ logout }: LayoutProps) => {
 
     switch (searchParams.get("d")) {
         case "cloud":
-            content = <DashboardCloud />;
+            content = <DashboardCloud openTerminal={openTerminal} />;
             current_page = "Cloud";
             break;
         case "services":
@@ -109,7 +125,12 @@ const Layout = ({ logout }: LayoutProps) => {
                 logout={logout}
                 current_page={current_page}
             />
-            {terminalVisible ? <Terminal setVisible={setTerminalVisibile} /> : null}
+            {terminalVisible ? (
+                <Terminal
+                    setVisible={setTerminalVisibile}
+                    remoteNode={terminalRemoteNode}
+                />
+            ) : null}
             {content}
         </div>
     );
@@ -156,7 +177,13 @@ const terminalDimensions = (): [number, number] => {
     return [cols, rows];
 };
 
-const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
+const Terminal = ({
+    setVisible,
+    remoteNode,
+}: {
+    setVisible: (v: boolean) => void;
+    remoteNode?: RemoteNode;
+}) => {
     const terminalId = useRef<string | null>(null);
 
     const term_params = useMemo(() => {
@@ -173,16 +200,29 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             }
         };
         return p;
-    }, []);
+    }, [remoteNode?.node, remoteNode?.svc]);
 
     const { instance, ref } = useXTerm(term_params as any);
 
+    const terminalCall = useCallback(
+        (method: string, params: any) => {
+            const engine = get_engine()!;
+            const call_method =
+                remoteNode?.node && remoteNode?.svc
+                    ? `bus::${remoteNode.svc}::bus::${FILEMGR_SVC}::${method}`
+                    : `bus::${FILEMGR_SVC}::${method}`;
+            if (remoteNode?.node) {
+                params.node = remoteNode.node;
+            }
+            return engine.call(call_method, params);
+        },
+        [remoteNode?.node, remoteNode?.svc]
+    );
+
     useEffect(() => {
-        const engine = get_engine()!;
-        engine
-            .call(`bus::${FILEMGR_SVC}::terminal.create`, {
-                dimensions: [term_params.options.cols, term_params.options.rows],
-            })
+        terminalCall("terminal.create", {
+            dimensions: [term_params.options.cols, term_params.options.rows],
+        })
             .then((res: any) => {
                 terminalId.current = res.i;
             })
@@ -192,26 +232,24 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
             });
         return () => {
             if (terminalId.current) {
-                engine.call(`bus::${FILEMGR_SVC}::terminal.kill`, {
+                terminalCall("terminal.kill", {
                     i: terminalId.current,
                 });
             }
         };
-    }, []);
+    }, [remoteNode?.node, remoteNode?.svc]);
 
     useLayoutEffect(() => {
         const updateSize = () => {
             const [cols, rows] = terminalDimensions();
-            const engine = get_engine()!;
             if (!terminalId.current) {
                 instance?.resize(cols, rows);
                 return;
             }
-            engine
-                .call(`bus::${FILEMGR_SVC}::terminal.resize`, {
-                    i: terminalId.current,
-                    dimensions: [cols, rows],
-                })
+            terminalCall("terminal.resize", {
+                i: terminalId.current,
+                dimensions: [cols, rows],
+            })
                 .then(() => {
                     instance?.resize(cols, rows);
                 })
@@ -222,7 +260,7 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
         window.addEventListener("resize", updateSize);
         updateSize();
         return () => window.removeEventListener("resize", updateSize);
-    }, [instance]);
+    }, [instance, remoteNode?.node, remoteNode?.svc]);
 
     const input = useRef("");
     const action_in_progress = useRef(false);
@@ -231,16 +269,14 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
         if (!terminalId.current) {
             return;
         }
-        const engine = get_engine()!;
         if (action_in_progress.current) {
             return;
         }
         action_in_progress.current = true;
-        engine
-            .call(`bus::${FILEMGR_SVC}::terminal.sync`, {
-                i: terminalId.current,
-                input: input.current,
-            })
+        terminalCall("terminal.sync", {
+            i: terminalId.current,
+            input: input.current,
+        })
             .then((data) => {
                 if (Array.isArray(data?.output)) {
                     data.output.forEach((v: any) => {
@@ -275,7 +311,7 @@ const Terminal = ({ setVisible }: { setVisible: (v: boolean) => void }) => {
     useEffect(() => {
         const w = setInterval(stdio_worker, 100);
         return () => clearInterval(w);
-    }, [instance, terminalId]);
+    }, [instance, terminalId, terminalCall]);
 
     instance?.onData((data: string) => {
         input.current += data;

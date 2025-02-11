@@ -5,7 +5,16 @@ import { DashTable, DashTableData } from "bmat/dashtable";
 import { formatUptime } from "bmat/time";
 import { formatNumber } from "bmat/numbers";
 
-const DashboardCloud = () => {
+export interface RemoteNode {
+    node: string;
+    svc: string;
+}
+
+const DashboardCloud = ({
+    openTerminal,
+}: {
+    openTerminal: (node?: RemoteNode) => void;
+}) => {
     const eva = get_engine() as Eva;
 
     const node_info_xtra = useRef(new Map());
@@ -54,14 +63,35 @@ const DashboardCloud = () => {
                 managed = xtra.managed ? "YES" : "NO";
                 trusted = xtra.trusted ? "YES" : "NO";
             }
-        } else {
         }
 
         const item_count =
             node_item_summary?.data?.sources?.[node.svc ? node.name : ".local"];
+        const data = [{ value: node.name }] as any;
+        if ((xtra?.managed && xtra?.online) || !node.svc) {
+            data.push({
+                value: (
+                    <div className="print-hidden">
+                        <button
+                            onClick={() => {
+                                if (node.svc) {
+                                    openTerminal({ node: node.name, svc: node.svc });
+                                } else {
+                                    openTerminal();
+                                }
+                            }}
+                        >
+                            console
+                        </button>
+                    </div>
+                ),
+                className: "col-fit",
+            });
+        } else {
+            data.push({ value: "", className: "col-fit" });
+        }
         return {
-            data: [
-                { value: node.name },
+            data: data.concat([
                 {
                     value: node.online ? "YES" : "NO",
                     sort_value: node.online,
@@ -88,7 +118,7 @@ const DashboardCloud = () => {
                 { value: node.svc, className: "col-fit" },
                 { value: node.info?.version, className: "col-fit" },
                 { value: node.info?.build },
-            ],
+            ]),
         };
     });
 
@@ -102,6 +132,7 @@ const DashboardCloud = () => {
                             title="Cloud status"
                             cols={[
                                 "node",
+                                "",
                                 "online",
                                 "managed",
                                 "trusted",
