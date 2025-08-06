@@ -94,7 +94,7 @@ const DashboardLog = () => {
     );
 
     const setLogParams = (p: object) => {
-        let np: any = { ...params };
+        const np: any = { ...params };
         Object.keys(p).forEach((k) => {
             np[k] = (p as any)[k];
         });
@@ -107,6 +107,8 @@ const DashboardLog = () => {
             <select
                 value={time_kind}
                 onChange={(e) => setTimeKind(e.target.value as TimeKind)}
+                name="time"
+                className="filter-field"
             >
                 <option>{TimeKind.Local}</option>
                 <option>{TimeKind.Server}</option>
@@ -117,6 +119,8 @@ const DashboardLog = () => {
             <select
                 value={params.limit}
                 onChange={(e) => setLogParams({ limit: parseInt(e.target.value) })}
+                name="limit"
+                className="filter-field"
             >
                 {logLimits.map((l) => (
                     <option key={l}>{l}</option>
@@ -179,7 +183,7 @@ const DashboardLog = () => {
         };
     });
 
-    let header = (
+    const header = (
         <>
             <div>
                 <EvaErrorMessage error={records.error} />
