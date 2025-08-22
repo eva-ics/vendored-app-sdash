@@ -24,4 +24,9 @@ export interface NavElement {
     submenus?: SubmenuItem[];
 }
 
+export type Bookmark = {
+    id: string;
+    title: string;
+};
+
 export const DEFAULT_TITLE = "Node system dashboard";

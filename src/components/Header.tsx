@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Timestamp } from "bmat/time";
 import { RemoteNode } from "../pages/Cloud";
+import { BookmarkButton } from "./BookmarkButton";
 
 const TimeInfo = () => {
     const [time, setTime] = useState(new Date());
@@ -152,6 +153,13 @@ const Header = ({
                         className="terminal-button"
                         title="Open terminal console"
                         onClick={() => openTerminal()}
+                    />
+                    <BookmarkButton
+                        className={
+                            location.search === "?d=bookmarks"
+                                ? "invisible"
+                                : "header-bookmark"
+                        }
                     />
                 </div>
                 <TimeInfo />

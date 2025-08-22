@@ -8,7 +8,7 @@ import {
 } from "react";
 import Header from "../components/Header";
 import SideMenu from "../components/SideMenu";
-import { LayoutProps } from "../types";
+import { DEFAULT_TITLE, LayoutProps } from "../types";
 import { useSearchParams } from "react-router-dom";
 import { useXTerm } from "react-xtermjs";
 import DashboardOverview from "../pages/Overview.tsx";
@@ -20,10 +20,22 @@ import DashboardRealtime from "../pages/Rt.tsx";
 import { get_engine } from "@eva-ics/webengine-react";
 import { onEvaError, onError } from "../common";
 import { RemoteNode } from "./Cloud";
+import { Eva } from "@eva-ics/webengine";
+import Bookmarks from "./Bookmarks.tsx";
+
+const titles = {
+    cloud: "Cloud",
+    services: "Services",
+    log: "Log",
+    events: "Events",
+    rt: "Realtime",
+    bookmarks: "Bookmarks",
+    overview: "Overview",
+} as const;
 
 const Layout = ({ logout }: LayoutProps) => {
     const [isOpenMenu, setIsOpenMenu] = useState(false);
-    const [searchParams, _] = useSearchParams();
+    const [searchParams] = useSearchParams();
 
     const [terminalVisible, setTerminalVisibile] = useState(false);
     const [terminalRemoteNode, setTerminalRemoteNode] = useState<RemoteNode | undefined>(
@@ -47,6 +59,17 @@ const Layout = ({ logout }: LayoutProps) => {
             }
         });
     }, []);
+
+    useEffect(() => {
+        const eva = get_engine() as Eva;
+        const system_name = eva.system_name();
+        const d = (searchParams.get("d") || "overview") as keyof typeof titles;
+        const pageTitle = titles[d];
+        document.title = `${pageTitle} - ${system_name} system dashboard`;
+        return () => {
+            document.title = DEFAULT_TITLE;
+        };
+    }, [searchParams]);
 
     let content;
     let current_page;
@@ -76,6 +99,10 @@ const Layout = ({ logout }: LayoutProps) => {
             content = <DashboardOverview />;
             current_page = "Navigate";
             break;
+        case "bookmarks":
+            content = <Bookmarks />;
+            current_page = "Navigate";
+            break;
         case "main_app":
             content = <DashboardOverview />;
             current_page = "Main app";
@@ -98,6 +125,7 @@ const Layout = ({ logout }: LayoutProps) => {
             submenus: [
                 { value: "Main app", to: "/" },
                 { value: "Vendored apps", to: "/va/" },
+                { value: "Bookmarks", to: "?d=bookmarks" },
                 { value: "Logout", to: "logout" },
             ],
         },
@@ -170,10 +198,10 @@ const terminalDimensions = (): [number, number] => {
 
         document.body.appendChild(el);
     }
-    let char_width = el.offsetWidth / 36;
-    let char_height = el.offsetHeight / 36;
-    let cols = Math.floor(((window.innerWidth / char_width) * 95) / 100 - 1);
-    let rows = Math.floor(((window.innerHeight / char_height) * 90) / 100 - 1);
+    const char_width = el.offsetWidth / 36;
+    const char_height = el.offsetHeight / 36;
+    const cols = Math.floor(((window.innerWidth / char_width) * 95) / 100 - 1);
+    const rows = Math.floor(((window.innerHeight / char_height) * 90) / 100 - 1);
     return [cols, rows];
 };
 
@@ -280,15 +308,15 @@ const Terminal = ({
             .then((data) => {
                 if (Array.isArray(data?.output)) {
                     data.output.forEach((v: any) => {
-                        let stdout = v.stdout;
+                        const stdout = v.stdout;
                         if (stdout) {
                             instance?.write(stdout);
                         }
-                        let stderr = v.stderr;
+                        const stderr = v.stderr;
                         if (stderr) {
                             instance?.write(stderr);
                         }
-                        let code = v.terminated;
+                        const code = v.terminated;
                         if (code !== undefined) {
                             setVisible(false);
                             if (code !== 0 && code !== null) {
