@@ -349,7 +349,7 @@ const Terminal = ({
         <>
             <div className="web-terminal-dim-content"></div>
             <div className="web-terminal">
-                <div ref={ref}></div>
+                <div ref={ref as React.RefObject<HTMLDivElement>}></div>
             </div>
         </>
     );

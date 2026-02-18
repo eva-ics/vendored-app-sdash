@@ -201,7 +201,7 @@ const DashboardLog = () => {
                         });
                         downloadCSV(
                             csvContent,
-                            `log-${get_engine()?.server_info.system_name}.csv`
+                            `log-${get_engine()?.server_info?.system_name ?? "export"}.csv`
                         );
                     }}
                 >

@@ -6,7 +6,7 @@ import Layout from "./pages/Layout.tsx";
 const SDash = ({ logout }: { logout: FunctionLogout }) => {
     const eva = get_engine() as Eva;
 
-    if (eva.server_info.acl.admin) {
+    if (eva?.server_info?.acl?.admin) {
         return (
             <BrowserRouter>
                 <Layout logout={logout}></Layout>
